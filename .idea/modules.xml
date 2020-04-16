@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Settings2.iml" filepath="$PROJECT_DIR$/Settings2.iml" group="Settings2" />
+      <module fileurl="file://$PROJECT_DIR$/demo-simple/demo-simple.iml" filepath="$PROJECT_DIR$/demo-simple/demo-simple.iml" group="Settings2/demo-simple" />
+      <module fileurl="file://$PROJECT_DIR$/settings-core/settings-core.iml" filepath="$PROJECT_DIR$/settings-core/settings-core.iml" group="Settings2/settings-core" />
+      <module fileurl="file://$PROJECT_DIR$/settings-sharedpreferences/settings-sharedpreferences.iml" filepath="$PROJECT_DIR$/settings-sharedpreferences/settings-sharedpreferences.iml" group="Settings2/settings-sharedpreferences" />
+    </modules>
+  </component>
+</project>
