@@ -34,7 +34,7 @@ repositories {
 2) Add the compile statement to your module's build.gradle:
 ```
 dependencies {
-	compile 'com.github.MFlisar:Settings:0.1'
+	compile 'com.github.MFlisar:Settings:0.2'
 }
 ```
 
