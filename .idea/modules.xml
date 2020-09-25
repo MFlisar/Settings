@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Settings2.iml" filepath="$PROJECT_DIR$/Settings2.iml" group="Settings2" />
-      <module fileurl="file://$PROJECT_DIR$/demo-simple/demo-simple.iml" filepath="$PROJECT_DIR$/demo-simple/demo-simple.iml" group="Settings2/demo-simple" />
-      <module fileurl="file://$PROJECT_DIR$/settings-core/settings-core.iml" filepath="$PROJECT_DIR$/settings-core/settings-core.iml" group="Settings2/settings-core" />
-      <module fileurl="file://$PROJECT_DIR$/settings-sharedpreferences/settings-sharedpreferences.iml" filepath="$PROJECT_DIR$/settings-sharedpreferences/settings-sharedpreferences.iml" group="Settings2/settings-sharedpreferences" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Settings.iml" filepath="$PROJECT_DIR$/.idea/Settings.iml" group="Settings" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo/demo.iml" filepath="$PROJECT_DIR$/.idea/modules/demo/demo.iml" group="Settings/demo" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-color/settings-color.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-color/settings-color.iml" group="Settings/settings-color" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-core/settings-core.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-core/settings-core.iml" group="Settings/settings-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/settings-storage-datastorepreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/settings-storage-datastorepreferences.iml" group="Settings/settings-storage-datastorepreferences" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/settings-storage-sharedpreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/settings-storage-sharedpreferences.iml" group="Settings/settings-storage-sharedpreferences" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-view/settings-view.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-view/settings-view.iml" group="Settings/settings-view" />
     </modules>
   </component>
 </project>

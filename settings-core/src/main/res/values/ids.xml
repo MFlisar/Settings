@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="settings_item_header" type="id" />
+    <item name="tag_settings_view" type="id" />
+    <item name="tag_settings_subview_top" type="id" />
+    <item name="tag_settings_subview_bottom" type="id" />
+
+    <item name="settings_item_empty" type="id" />
+    <item name="settings_item_group" type="id" />
+    <item name="settings_item_bool" type="id" />
+    <item name="settings_item_text" type="id" />
+    <item name="settings_item_info" type="id" />
+    <item name="settings_item_int" type="id" />
+    <item name="settings_item_list" type="id" />
+    <item name="settings_item_multi_list" type="id" />
+
+    <item name="settings_dialog_type_item_text" type="id" />
+    <item name="settings_dialog_type_item_info" type="id" />
+    <item name="settings_dialog_type_item_int" type="id" />
+    <item name="settings_dialog_type_item_list" type="id" />
+    <item name="settings_dialog_type_item_multi_list" type="id" />
 
 </resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Settings Demo</string>
+    <string name="filter_info">Filter settings</string>
+    <string name="custom_default_setting_label">Global default value</string>
+</resources>

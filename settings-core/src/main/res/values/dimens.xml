@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- width is used for icon size, padding is used to get equal total widths for icons and switch -->
+    <dimen name="settings_left_icon_width">48dp</dimen>
+    <dimen name="settings_left_icon_height">24dp</dimen>
+    <dimen name="settings_left_icon_horizontal_padding">8dp</dimen>
+
+    <dimen name="settings_icon_margin_right">8dp</dimen>
+
+    <dimen name="settings_left_icon_translation">-4dp</dimen>
+    <dimen name="settings_right_icon_translation">8dp</dimen>
+
+</resources>

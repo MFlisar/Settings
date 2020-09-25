@@ -1,0 +1,105 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion setup.compileSdk
+
+    dataBinding.enabled = setup.enableDataBinding
+    viewBinding.enabled = setup.enableViewBinding
+
+    defaultConfig {
+        applicationId "com.michaelflisar.settings.demo"
+        minSdkVersion setup.minSdk
+        targetSdkVersion setup.targetSdk
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+    }
+
+    signingConfigs {
+        debug {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('M:/dev/02 - keystores/debug.keystore')
+            storePassword 'android'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            multiDexEnabled releaseSetup.useMultiDex
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            multiDexEnabled debugSetup.useMultiDex
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+}
+
+dependencies {
+
+    // ------------------------
+    // Kotlin
+    // ------------------------
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlinVersion}"
+
+    // ------------------------
+    // AndroidX
+    // ------------------------
+
+    implementation "androidx.core:core-ktx:${androidx.corektx}"
+    implementation "androidx.appcompat:appcompat:${androidx.appcompat}"
+    implementation "androidx.recyclerview:recyclerview:${androidx.recyclerview}"
+    implementation "androidx.cardview:cardview:${androidx.cardview}"
+    implementation "com.google.android.material:material:${androidx.material}"
+
+    // ------------------------
+    // Library + Implementations
+    // ------------------------
+
+    // dependencies are imported automatically by settings storage implementation so following is not necessary
+    // => this is true for the 2 existing default storage implementations
+    // => this may not be try for your own implementations
+    // implementation project(':settings-core')
+    // implementation project(':settings-color')
+
+    // simply add the desired storage implementation + view module if needed
+    implementation project(':settings-storage-datastorepreferences')
+    implementation project(':settings-view')
+
+    // ------------------------
+    // Preferences
+    // ------------------------
+
+    //implementation "com.chibatching.kotpref:kotpref:${versions.kotpref}"
+    //implementation "com.chibatching.kotpref:enum-support:${versions.kotpref}"
+
+    // ------------------------
+    // Others
+    // ------------------------
+
+//    implementation"com.mikepenz:fastadapter:${versions.fastAdapter}"
+//    implementation "com.mikepenz:fastadapter-extensions-expandable:${versions.fastAdapter}"
+
+//    implementation 'com.shawnlin:number-picker:2.4.6'
+//    implementation 'com.github.nguyenhoanglam:ImagePicker:1.2.1'
+
+    implementation 'com.evernote:android-state:1.4.1'
+    kapt 'com.evernote:android-state-processor:1.4.1'
+}

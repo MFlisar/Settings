@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- TODO: currently padding of checkbox is fixed by negative margin but this is not save!
+         6dp seems to work without cutting off the right edge perfectly - but I don't know if this is true on all devices...
+         -->
+
+    <CheckBox
+        android:id="@+id/cbChecked"
+        android:padding="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:layout_marginRight="-6dp"
+        android:layout_gravity="center_vertical|right" />
+
+</FrameLayout>

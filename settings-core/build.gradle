@@ -20,6 +20,7 @@ android {
     defaultConfig {
         minSdkVersion setup.minSdk
         targetSdkVersion setup.targetSdk
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
@@ -51,10 +52,18 @@ dependencies {
     // AndroidX
     // ------------------------
 
+    implementation "androidx.core:core-ktx:${androidx.corektx}"
     implementation "androidx.appcompat:appcompat:${androidx.appcompat}"
     implementation "androidx.recyclerview:recyclerview:${androidx.recyclerview}"
 //    implementation "androidx.cardview:cardview:${androidx.cardview}"
     implementation "com.google.android.material:material:${androidx.material}"
+    implementation "androidx.constraintlayout:constraintlayout:${androidx.constraintLayout}"
+
+    // ------------------------
+    // AndroidText
+    // ------------------------
+
+    api "com.github.MFlisar:AndroidText:${versions.androidText}"
 
     // ------------------------
     // FastAdapter
@@ -62,5 +71,21 @@ dependencies {
 
     api "com.mikepenz:fastadapter:${versions.fastAdapter}"
     api "com.mikepenz:fastadapter-extensions-expandable:${versions.fastAdapter}"
-    implementation "com.mikepenz:fastadapter-extensions-binding:${versions.fastAdapter}"
+    api "com.mikepenz:fastadapter-extensions-binding:${versions.fastAdapter}"
+
+    // ------------------------
+    // MaterialDialogFragments
+    // ------------------------
+
+    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs:${versions.dialogFragments}"
+    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs-input:${versions.dialogFragments}"
+
+    // ------------------------
+    // Custom Views / Popup Menu
+    // ------------------------
+
+    implementation "com.github.zagum:Android-SwitchIcon:${versions.switchIcon}"
+
+    implementation "com.github.zawadz88.materialpopupmenu:material-popup-menu:${versions.popupMenu}"
+//    implementation "com.github.MFlisar:MaterialPopupMenu:3.4.3"
 }

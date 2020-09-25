@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="settings_default_setting">Default value</string>
+    <string name="settings_no_group_title">No group</string>
+    <string name="settings_no_search_results">No results</string>
+    <string name="settings_cant_edit_an_disabled_item">Enable this setting before you try to change it</string>
+
+    <string name="settings_dialog_event_tag_dialog_type" translatable="false">settings_dialog_event_tag_dialog_type</string>
+    <string name="settings_dialog_event_tag_setting" translatable="false">settings_dialog_event_tag_setting</string>
+    <string name="settings_dialog_event_tag_custom_item" translatable="false">settings_dialog_event_tag_custom_item</string>
+
+</resources>

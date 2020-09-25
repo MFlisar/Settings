@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.michaelflisar.settings.core.internal.views.SettingsRootView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:minHeight="?listPreferredItemHeightSmall"
+    app:cardCornerRadius="0dp"
+    app:cardUseCompatPadding="false"
+    app:contentPadding="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:padding="8dp">
+
+        <!-- ********** -->
+        <!-- Guidelines -->
+        <!-- ********** -->
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline23"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.66" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guidelineInset"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="0dp" />
+
+        <!-- debug view -->
+
+        <!--    <View-->
+        <!--        android:id="@+id/vInset"-->
+        <!--        android:layout_width="0dp"-->
+        <!--        android:layout_height="0dp"-->
+        <!--        android:background="#ff0000"-->
+        <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--        app:layout_constraintRight_toLeftOf="@id/guidelineInset"-->
+        <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+        <!-- ********** -->
+        <!-- Background -->
+        <!-- ********** -->
+
+<!--        <View-->
+<!--            android:id="@+id/vBackground"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="0dp"-->
+<!--            android:background="?colorPrimary"-->
+<!--            android:visibility="gone"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+        <View
+            android:id="@+id/vImageBackground"
+            android:layout_width="@dimen/settings_left_icon_width"
+            android:layout_height="@dimen/settings_left_icon_height"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="?colorAccent"
+            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/vBottomSeparator"
+            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/vGroupImageBackground"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="?colorAccent"
+            android:visibility="gone"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp"
+            app:cardUseCompatPadding="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- ********** -->
+        <!-- Icons -->
+        <!-- ********** -->
+
+        <!-- Icon -->
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="@dimen/settings_left_icon_width"
+            android:layout_height="@dimen/settings_left_icon_height"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            app:layout_constraintBottom_toTopOf="@id/vBottomSeparator"
+            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.github.zagum.switchicon.SwitchIconView
+            android:id="@+id/sivIcon"
+            android:layout_width="@dimen/settings_left_icon_width"
+            android:layout_height="@dimen/settings_left_icon_height"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintTop_toTopOf="parent"
+            app:si_disabled_color="?colorControlNormal"
+            app:si_tint_color="?colorAccent" />
+
+        <Switch
+            android:id="@+id/swIcon"
+            android:layout_width="@dimen/settings_left_icon_width"
+            android:layout_height="@dimen/settings_left_icon_height"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:switchMinWidth="@dimen/settings_left_icon_width"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Arrow View for Dialogs and Expandable Items -->
+        <!-- translated into the containers margin! -->
+        <ImageView
+            android:id="@+id/ivEndIcon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:rotation="270"
+            android:translationX="@dimen/settings_right_icon_translation"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
+
+        <!-- Arrow View for Dialogs and Expandable Items -->
+        <!-- translated into the containers margin! -->
+        <ImageView
+            android:id="@+id/ivExpandIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:translationX="@dimen/settings_left_icon_translation"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
+
+        <!-- Icon -->
+        <ImageButton
+            android:id="@+id/ivHelp"
+            android:layout_width="32dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:cropToPadding="true"
+            android:padding="4dp"
+            app:layout_constraintBottom_toTopOf="@id/barrierBottom"
+            app:layout_constraintRight_toLeftOf="@id/guideline23"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+
+        <!-- ********** -->
+        <!-- Top Row -->
+        <!-- ********** -->
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/SettingsTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            app:layout_constraintBottom_toTopOf="@id/tvSubTitle"
+            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
+            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Titel" />
+
+        <!-- SubTitle -->
+        <TextView
+            android:id="@+id/tvSubTitle"
+            style="@style/SettingsSubTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            app:layout_constraintBottom_toTopOf="@id/barrierBottom"
+            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
+            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Sub Titel" />
+
+        <!-- View for State -->
+        <FrameLayout
+            android:id="@+id/vState"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toTopOf="@id/barrierBottom"
+            app:layout_constraintLeft_toRightOf="@id/ivHelp"
+            app:layout_constraintRight_toLeftOf="@id/ivEndIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- ******************** -->
+        <!-- Bottom Row - Barrier -->
+        <!-- ******************** -->
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrierBottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="ivIcon,tvTitle,tvSubTitle,vState" />
+
+        <!-- ********** -->
+        <!-- Bottom Row -->
+        <!-- ********** -->
+
+        <View
+            android:id="@+id/vBottomSeparator"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:alpha="0.5"
+            android:background="?colorOnBackground"
+            app:layout_constraintLeft_toRightOf="@id/ivIcon"
+            app:layout_constraintRight_toLeftOf="@+id/ivEndIcon"
+            app:layout_constraintTop_toBottomOf="@+id/barrierBottom" />
+
+        <!-- Bottom Title -->
+        <TextView
+            android:id="@+id/tvBottomTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:layout_marginTop="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
+            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintTop_toBottomOf="@id/vBottomSeparator"
+            tools:text="Bottom Titel" />
+
+        <!-- View for Bottom State -->
+        <FrameLayout
+            android:id="@+id/vStateBottom"
+            style="@style/SettingsSubTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/ivHelp"
+            app:layout_constraintRight_toLeftOf="@id/ivEndIcon"
+            app:layout_constraintTop_toBottomOf="@id/vBottomSeparator" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.michaelflisar.settings.core.internal.views.SettingsRootView>

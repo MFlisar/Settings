@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="SettingsView">
+        <attr name="searchEnabled" format="boolean|reference" />
+        <attr name="hideSearchOnScroll" format="boolean|reference" />
+        <attr name="layoutStyle" format="enum">
+            <enum name="List" value="0" />
+            <enum name="Pager" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

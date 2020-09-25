@@ -1,3 +1,9 @@
-include ':demo-simple'
 include ':settings-core'
-include ':settings-sharedpreferences'
+include ':settings-view'
+
+include ':settings-color'
+
+include ':settings-storage-datastorepreferences'
+include ':settings-storage-sharedpreferences'
+
+include ':demo'
