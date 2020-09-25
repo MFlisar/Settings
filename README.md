@@ -34,7 +34,17 @@ repositories {
 2) Add the compile statement to your module's build.gradle:
 ```
 dependencies {
-	compile 'com.github.MFlisar:Settings:0.2'
+	// include all
+	implementation 'com.github.MFlisar:Settings:<LAST VERSION>'
+	
+	// include parts
+	implementation 'com.github.MFlisar:Settings:settings-core:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings:settings-view:<LAST VERSION>'
+	
+	implementation 'com.github.MFlisar:Settings:settings-storage-sharedpreferences:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings:settings-storage-datastorepreferences:<LAST VERSION>'
+	
+	implementation 'com.github.MFlisar:Settings:settings-color:<LAST VERSION>'	
 }
 ```
 
