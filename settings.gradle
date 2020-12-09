@@ -1,9 +1,27 @@
-include ':settings-core'
-include ':settings-view'
+include ':settings'
 
-include ':settings-color'
+include ':settings.image'
+project(':settings.image').projectDir = new File(settingsDir, "settings-image")
 
-include ':settings-storage-datastorepreferences'
-include ':settings-storage-sharedpreferences'
+include ':settings.utils'
+project(':settings.utils').projectDir = new File(settingsDir, "settings-utils")
+
+include ':settings.core'
+project(':settings.core').projectDir = new File(settingsDir, "settings-core")
+
+include ':settings.view'
+project(':settings.view').projectDir = new File(settingsDir, "settings-view")
+
+include ':settings.color'
+project(':settings.color').projectDir = new File(settingsDir, "settings-color")
+
+include ':settings.storage'
+project(':settings.storage').projectDir = new File(settingsDir, "settings-storage")
+
+include ':settings.storage-datastorepreferences'
+project(':settings.storage-datastorepreferences').projectDir = new File(settingsDir, "settings-storage-datastorepreferences")
+
+include ':settings.storage-sharedpreferences'
+project(':settings.storage-sharedpreferences').projectDir = new File(settingsDir, "settings-storage-sharedpreferences")
 
 include ':demo'

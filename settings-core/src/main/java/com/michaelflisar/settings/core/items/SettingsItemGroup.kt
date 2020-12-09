@@ -5,26 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
-import com.michaelflisar.settings.core.*
+import com.michaelflisar.settings.core.R
+import com.michaelflisar.settings.core.SettingsUtils
 import com.michaelflisar.settings.core.classes.*
 import com.michaelflisar.settings.core.databinding.SettingsItemBaseBinding
 import com.michaelflisar.settings.core.databinding.SettingsItemTextBinding
 import com.michaelflisar.settings.core.enums.CountDisplayType
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.internal.Test
 import com.michaelflisar.settings.core.items.base.BaseBaseSettingsItem
 import com.michaelflisar.settings.core.settings.base.BaseSettingsGroup
+import com.michaelflisar.settings.core.tint
 import com.mikepenz.fastadapter.ClickListener
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.binding.BindingViewHolder
 
-internal class SettingsItemGroup(
+class SettingsItemGroup(
         override var parentSetting: ISettingsItem<*, *, *>?,
         override var index: Int,
         override var item: BaseSettingsGroup<*>,
         override var itemData: SettingsMetaData,
-        override var settingsCustomItem: SettingsCustomObject,
+        override var settingsData: ISettingsData,
         setup: SettingsDisplaySetup
 ) : BaseBaseSettingsItem<Unit, SettingsItemTextBinding, BaseSettingsGroup<*>>(setup) {
 
@@ -124,9 +127,7 @@ internal class SettingsItemGroup(
             item.iconOpened?.display(binding.ivIcon) ?: binding.ivIcon.setImageDrawable(null)
     }
 
-    override fun bindSubViews(subBindingTop: SettingsItemTextBinding, subBindingBottom: SettingsItemTextBinding?, payloads: List<Any>) {
-        // Top View
-
+    override fun bindSubViewTop(subBindingTop: SettingsItemTextBinding, payloads: List<Any>) {
         val count = when (setup.subItemsCountDisplayType) {
             is CountDisplayType.None -> {
                 null
@@ -141,16 +142,6 @@ internal class SettingsItemGroup(
                 val count = getAllSubItems(false).filter { setup.subItemsCountDisplayType.isValid(it) }.size
                 Pair(filteredCount, count)
             }
-            /*
-            CountDisplayType.DirectChildren -> {
-                Pair(subItems.size, unfilteredSubItems.size)
-            }
-            CountDisplayType.AllChildrenWithGroups -> {
-                Pair(getAllSubItems(true).size, getAllSubItems(true, false).size)
-            }
-            CountDisplayType.AllChildrenWithoutGroups -> {
-                Pair(getAllSubItems(false).size, getAllSubItems(false, false).size)
-            }*/
         }
         if (count != null) {
             if (isFiltered) {
@@ -159,6 +150,10 @@ internal class SettingsItemGroup(
                 subBindingTop.tvDisplayValue.text = "(${count.first})"
             }
         }
+    }
+
+    override fun bindSubViewBottom(subBindingBottom: SettingsItemTextBinding, payloads: List<Any>) {
+        // empty
     }
 
     override fun createSubBinding(inflater: LayoutInflater, parent: ViewGroup?, topBinding: Boolean): SettingsItemTextBinding {

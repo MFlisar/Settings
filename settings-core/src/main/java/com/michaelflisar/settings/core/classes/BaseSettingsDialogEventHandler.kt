@@ -5,6 +5,7 @@ import com.michaelflisar.dialogs.events.BaseDialogEvent
 import com.michaelflisar.settings.core.R
 import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsDialogEventHandler
 
 abstract class BaseSettingsDialogEventHandler<ValueType, EventType, Setting : ISetting<ValueType>> : ISettingsDialogEventHandler<ValueType, Setting> {
@@ -17,7 +18,7 @@ abstract class BaseSettingsDialogEventHandler<ValueType, EventType, Setting : IS
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun onDialogEvent(event: Any) {
+    override fun onDialogEvent(event: Any, dialogContext: DialogContext) {
         val e = event as BaseDialogEvent
         val extras = e.extras
         val setting = extras?.get(getKey(R.string.settings_dialog_event_tag_setting)) as ISetting<*>?
@@ -25,22 +26,22 @@ abstract class BaseSettingsDialogEventHandler<ValueType, EventType, Setting : IS
         val isCorrectType = extras?.getInt(getKey(R.string.settings_dialog_event_tag_dialog_type)) == dialogType
 
         if (isCorrectType && setting != null) {
-            val customItem = event.extras!!.get(getKey(R.string.settings_dialog_event_tag_custom_item)) as SettingsCustomObject
-            onDialogEvent(event as EventType, setting as Setting, customItem)
+            val settingsDataHolder = event.extras!!.get(getKey(R.string.settings_dialog_event_tag_custom_item)) as ISettingsData
+            onDialogEvent(dialogContext, event as EventType, setting as Setting, settingsDataHolder)
         }
     }
 
-    abstract fun onDialogEvent(event: EventType, setting: Setting, customItem: SettingsCustomObject)
+    abstract fun onDialogEvent(dialogContext: DialogContext, event: EventType, setting: Setting, settingsData: ISettingsData)
 
     // -----------------
     // helper functions
     // -----------------
 
-    fun createDialogBundle(setting: ISetting<*>, customItem: SettingsCustomObject?): Bundle {
+    fun createDialogBundle(setting: ISetting<*>, settingsData: ISettingsData?): Bundle {
         return Bundle().apply {
             putInt(getKey(R.string.settings_dialog_event_tag_dialog_type), dialogType)
             putParcelable(getKey(R.string.settings_dialog_event_tag_setting), setting)
-            putParcelable(getKey(R.string.settings_dialog_event_tag_custom_item), customItem)
+            putParcelable(getKey(R.string.settings_dialog_event_tag_custom_item), settingsData)
         }
     }
 

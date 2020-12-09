@@ -16,6 +16,12 @@ internal class ConcurrentSaveMutableList<E>() {
     private val pendingAdditions = ArrayList<E>()
     private val pendingDeletes = ArrayList<E>()
 
+    fun clear() {
+        pendingAdditions.clear()
+        pendingDeletes.clear()
+        list.clear()
+    }
+
     fun add(item: E) {
         if (isIterating) {
             pendingAdditions.add(item)

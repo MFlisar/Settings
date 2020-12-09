@@ -1,29 +1,29 @@
 package com.michaelflisar.settings.demo
 
 import android.app.Application
-import android.content.Context
-import com.michaelflisar.settings.core.SettingsManager
-import com.michaelflisar.settings.storage.datastorepreferences.DataStorePrefSettings
+import com.chibatching.kotpref.Kotpref
+import com.michaelflisar.settings.demo.advanced.DBManager
+import com.michaelflisar.settings.demo.simple.SettingsDefs
 
 class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
+        // necessary for advanced example
+        Kotpref.init(this)
+        DBManager.init(this)
+
         // -------------
         // Init settings
         // -------------
 
-        // 1) our StorageManager is the DataStorePrefsSetting - so we create one here...
-        val storageManager = DataStorePrefSettings(this, "demo_data_store")
-
-        // 2) ... and then we initialise the SettingsManager with the StorageManager it should use
-        SettingsManager.init(this, storageManager)
+        // this is done in the MainActivity dependent on which demo is selected... normally this could be done here
 
         // -------------
         // Init some initial custom settings
         // -------------
 
-        SettingsDefs.onAppStart()
+
     }
 }

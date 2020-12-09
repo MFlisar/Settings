@@ -4,7 +4,7 @@ import android.os.Parcelable
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.items.SettingsItemGroup
 import com.michaelflisar.settings.core.items.SettingsItemInfo
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 
 sealed class CountDisplayType : Parcelable {

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="SettingsButtonStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="tint">?colorOnPrimary</item>
+        <item name="fabSize">normal</item>
+    </style>
+
     <style name="SettingsSearchBarContainerStyle" parent="Widget.MaterialComponents.CardView">
-        <item name="cardBackgroundColor">?colorPrimary</item>
+        <item name="cardBackgroundColor">?colorAccent</item>
     </style>
 
     <style name="CustomCursor" parent="ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox">
@@ -14,6 +19,8 @@
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="startIconTint">?colorOnPrimary</item>
         <item name="endIconTint">?colorOnPrimary</item>
+        <item name="hintTextColor">?colorOnPrimary</item>
+        <item name="helperTextTextColor">?colorOnPrimary</item>
         <item name="android:theme">@style/CustomCursor</item>
     </style>
 

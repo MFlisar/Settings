@@ -7,19 +7,24 @@ import android.text.style.ForegroundColorSpan
 import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.interfaces.ISetting
 import com.michaelflisar.settings.core.interfaces.ISettingsFilter
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class SettingsFilter(
+open class SettingsFilter(
         private val ignoreCase: Boolean,
         private val searchInLabel: Boolean = true,
         private val searchInInfo: Boolean = true,
         private val searchInNumber: Boolean = true
 ) : ISettingsFilter {
 
+    override fun isValid(item: ISetting<*>): Boolean = true
+
     override fun transformFilter(filter: String?): String = filter?.trim() ?: ""
 
     override fun isValid(filter: String, item: ISetting<*>): Boolean {
+        if (filter.isEmpty()) {
+            return true
+        }
         return (searchInLabel && item.label.get(SettingsManager.context).contains(filter, ignoreCase)) ||
                 (searchInInfo && item.info?.get(SettingsManager.context)?.contains(filter, ignoreCase) ?: false) ||
                 (searchInNumber && item.getNumberingInfo().contains(filter, ignoreCase))

@@ -1,12 +1,15 @@
 package com.michaelflisar.settings.storage.datastorepreferences
 
 import android.content.Context
+import android.graphics.Color
+import android.os.Parcelable
 import androidx.datastore.DataStore
 import androidx.datastore.preferences.*
 import com.michaelflisar.settings.color.ColorSetting
 import com.michaelflisar.settings.color.SettingsColorModule
 import com.michaelflisar.settings.core.SettingsCoreModule
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsListItem
 import com.michaelflisar.settings.core.interfaces.ISettingsStorageManager
 import com.michaelflisar.settings.core.settings.*
@@ -31,45 +34,44 @@ open class DataStorePrefSettings(
 
     private fun <T> readValue(key: String, setting: ISetting<*>): T {
         castIntSetting(setting)?.let {
-            return read(key, it.defaultValue) as T
+            return read(key, 0) as T
         }
         castBooleanSetting(setting)?.let {
-            return read(key, it.defaultValue) as T
+            return read(key, false) as T
         }
         castStringSetting(setting)?.let {
-            return read(key, it.defaultValue) as T
+            return read(key, "") as T
         }
         castListSetting(setting)?.let {
-            val id = read(key, it.defaultValue.id)
-            return it.setup.getItemByID(id) as T
+            val id = read(key, 0L)
+            return (it.setup.getItemById(id) ?: it.setup.items.first()) as T
         }
         castMultiListSetting(setting)?.let {
-            val ids = readSet(key, it.defaultValue.items.map { it.id.toString() }.toSet())
-            val data: List<ISettingsListItem> = ids.map { id -> it.setup.getItemByID(id.toLong()) }
+            val ids = readSet(key, emptySet())
+            val data: List<ISettingsListItem> = ids.map { id -> it.setup.getItemById(id.toLong()) }
             return MultiListSetting.MultiListData(data) as T
         }
         castColorSetting(setting)?.let {
-            return read(key, it.defaultValue) as T
+            return read(key, Color.BLACK) as T
         }
         throw RuntimeException("Unsupported setting received!")
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> readGlobal(setting: ISetting<*>): T {
+    override fun <T> readGlobal(setting: ISetting<*>, settingsData: ISettingsData.Global): T {
         val key = getGlobalKey(setting)
         return readValue(key, setting)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> readCustom(setting: ISetting<*>, customItem: Any): T {
-        val key = getCustomKey(setting, customItem as IPrefSubIDProvider)
+    override fun <T> readCustom(setting: ISetting<*>, settingsData: ISettingsData.Element): T {
+        val key = getCustomKey(setting, settingsData as IPrefSubIDProvider)
         return readValue(key, setting)
     }
 
-    override fun readCustomEnabled(setting: ISetting<*>, customItem: Any): Boolean {
-        val key = getCustomIsEnabledKey(setting, customItem as IPrefSubIDProvider)
-        val defaultIsCustomEnabled = setting.defaultIsCustomEnabled
-        return read(key, defaultIsCustomEnabled)
+    override fun readCustomEnabled(setting: ISetting<*>, settingsData: ISettingsData.Element): Boolean {
+        val key = getCustomIsEnabledKey(setting, settingsData as IPrefSubIDProvider)
+        return read(key, false)
     }
 
     private fun <T> writeValue(key: String, setting: ISetting<*>, value: T) {
@@ -101,20 +103,20 @@ open class DataStorePrefSettings(
         throw RuntimeException("Unsupported setting received!")
     }
 
-    override fun <T> writeGlobal(setting: ISetting<*>, value: T): Boolean {
+    override fun <T> writeGlobal(setting: ISetting<*>, value: T, settingsData: ISettingsData.Global): Boolean {
         val key = getGlobalKey(setting)
         writeValue(key, setting, value)
         return true
     }
 
-    override fun <T> writeCustom(setting: ISetting<*>, value: T, customItem: Any): Boolean {
-        val key = getCustomKey(setting, customItem as IPrefSubIDProvider)
+    override fun <T> writeCustom(setting: ISetting<*>, value: T, settingsData: ISettingsData.Element): Boolean {
+        val key = getCustomKey(setting, settingsData as IPrefSubIDProvider)
         writeValue(key, setting, value)
         return true
     }
 
-    override fun writeCustomEnabled(setting: ISetting<*>, value: Boolean, customItem: Any): Boolean {
-        val key = getCustomIsEnabledKey(setting, customItem as IPrefSubIDProvider)
+    override fun writeCustomEnabled(setting: ISetting<*>, value: Boolean, settingsData: ISettingsData.Element): Boolean {
+        val key = getCustomIsEnabledKey(setting, settingsData as IPrefSubIDProvider)
         write(key, value)
         return true
     }

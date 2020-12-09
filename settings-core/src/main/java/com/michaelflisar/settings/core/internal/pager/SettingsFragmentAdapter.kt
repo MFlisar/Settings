@@ -1,26 +1,26 @@
 package com.michaelflisar.settings.core.internal.pager
 
 import androidx.fragment.app.FragmentManager
-import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
 import com.michaelflisar.settings.core.classes.SettingsDependency
-import com.michaelflisar.settings.core.internal.SettingsPayload
+import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
 import com.michaelflisar.settings.core.classes.SettingsState
+import com.michaelflisar.settings.core.interfaces.ISettingsData
+import com.michaelflisar.settings.core.internal.SettingsPayload
 import com.michaelflisar.settings.core.internal.fragments.SettingsFragment
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
 internal class SettingsFragmentAdapter(
         fm: FragmentManager,
-        val customItem: SettingsCustomObject,
+        val settingsData: ISettingsData,
         val groups: List<SettingsGroup>,
-        val dependencies: List<SettingsDependency>,
+        val dependencies: List<SettingsDependency<*>>,
         val setup: SettingsDisplaySetup,
         val state: SettingsState
 ) : AdvancedFragmentStatePagerAdapter<SettingsFragment>(fm) {
 
     override fun createItem(position: Int): SettingsFragment {
 //        Log.d("SettingsFragment", "createItem: $position")
-        return SettingsFragment.create(customItem, groups[position], dependencies, setup, state)
+        return SettingsFragment.create(settingsData, groups[position], dependencies, setup, state)
     }
 
     override fun getCount(): Int = groups.size
@@ -34,7 +34,7 @@ internal class SettingsFragmentAdapter(
         }
     }
 
-    fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+    fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
         allCreatedFragments.forEach {
             it.onDependencyChanged(dependency, payload)
         }

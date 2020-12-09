@@ -6,31 +6,31 @@ import android.view.ViewGroup
 import com.michaelflisar.dialogs.events.DialogNumberEvent
 import com.michaelflisar.dialogs.setups.DialogNumber
 import com.michaelflisar.dialogs.setups.DialogNumberPicker
-import com.michaelflisar.settings.core.settings.base.BaseSetting
 import com.michaelflisar.settings.core.R
-import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
 import com.michaelflisar.settings.core.classes.*
 import com.michaelflisar.settings.core.databinding.SettingsItemTextBinding
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.items.base.BaseSettingsItemDialog
+import com.michaelflisar.settings.core.items.setups.InfoSetup
 import com.michaelflisar.settings.core.items.setups.IntSetup
+import com.michaelflisar.settings.core.settings.base.BaseSetting
 import com.michaelflisar.settings.core.show
 
-internal class SettingsItemInt(
+class SettingsItemInt(
         override var parentSetting: ISettingsItem<*, *, *>?,
         override var index: Int,
         override var item: BaseSetting<Int, *, IntSetup>,
         override var itemData: SettingsMetaData,
-        override var settingsCustomItem: SettingsCustomObject,
+        override var settingsData: ISettingsData,
         setup: SettingsDisplaySetup
 ) : BaseSettingsItemDialog<Int, SettingsItemTextBinding, IntSetup, BaseSetting<Int, *, IntSetup>>(setup) {
 
     override val type = R.id.settings_item_int
     override val dialogHandler = DIALOG_HANDLER
 
-    override fun bindSubViews(bindingTop: SettingsItemTextBinding, bindingBottom: SettingsItemTextBinding?, payloads: List<Any>, topValue: Int, bottomValue: Int) {
-        bindingTop.tvDisplayValue.text = topValue.toString()
-        bindingBottom!!.tvDisplayValue.text = bottomValue.toString()
+    override fun bindSubView(binding: SettingsItemTextBinding, payloads: List<Any>, value: Int, topBinding: Boolean) {
+        binding.tvDisplayValue.text = item.setup.formatValue(value)
     }
 
     override fun createSubBinding(inflater: LayoutInflater, parent: ViewGroup?, topBinding: Boolean): SettingsItemTextBinding {
@@ -46,16 +46,17 @@ internal class SettingsItemInt(
 
             override val dialogType: Int = R.id.settings_dialog_type_item_int
 
-            override fun showDialog(view: View, dialogContext: DialogContext, item: BaseSetting<Int, *, IntSetup>, customItem: SettingsCustomObject) {
-                val value = item.readSetting(customItem)
-                val extra = createDialogBundle(item, customItem)
+            override fun showDialog(view: View, dialogContext: DialogContext, settingsItem: ISettingsItem<Int, *, BaseSetting<Int, *, IntSetup>>, settingsData: ISettingsData) {
+                val item = settingsItem.item
+                val value = item.read(settingsData)
+                val extra = createDialogBundle(item, settingsData)
                 val setup = item.setup
                 val dlg = when (setup) {
                     is IntSetup.Input -> {
                         DialogNumber(
                                 item.id.toInt(),
-                                item.label,
-                                text = item.label,
+                                title = item.label,
+                                text = if (setup.showInfoInDialog) item.info else null,
                                 initialValue = value,
                                 extra = extra,
                                 min = item.setup.min,
@@ -67,12 +68,13 @@ internal class SettingsItemInt(
                     is IntSetup.Picker -> {
                         DialogNumberPicker(
                                 item.id.toInt(),
-                                item.label,
-                                text = item.label,
+                                title = item.label,
+                                text = if (setup.showInfoInDialog) item.info else null,
                                 initialValue = value,
                                 extra = extra,
                                 min = setup.min,
                                 max = setup.max,
+                                valueFormatRes = setup.valueFormatRes,
                                 step = setup.step
                         )
                                 .create()
@@ -81,7 +83,7 @@ internal class SettingsItemInt(
                 dlg.show(dialogContext)
             }
 
-            override fun onDialogEvent(event: DialogNumberEvent, setting: BaseSetting<Int, *, IntSetup>, customItem: SettingsCustomObject) {
+            override fun onDialogEvent(dialogContext: DialogContext, event: DialogNumberEvent, setting: BaseSetting<Int, *, IntSetup>, settingsData: ISettingsData) {
                 if (event.posClicked()) {
 
                     // 1) get new value
@@ -89,7 +91,7 @@ internal class SettingsItemInt(
 
                     // 2) save new value -> this will automatically notify callbacks if setting has changed
                     if (newValue != null) {
-                        setting.writeSetting(customItem, newValue)
+                        setting.write(settingsData, newValue)
                     }
                 }
             }

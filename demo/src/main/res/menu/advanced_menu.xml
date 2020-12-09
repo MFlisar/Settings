@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/menu_global_desktop_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="Global desktop settings" />
+
+    <item android:id="@+id/menu_global_folder_settings"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="Global folder settings" />
+
+</menu>

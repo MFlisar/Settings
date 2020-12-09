@@ -34,13 +34,17 @@ internal class SettingsRootView @JvmOverloads constructor(
     private var viewIsEnabled = true
 
     fun setUsesDarkTheme(isDarkTheme: Boolean) {
-        darkTheme = isDarkTheme
-        invalidate()
+        if (darkTheme != isDarkTheme) {
+            darkTheme = isDarkTheme
+            invalidate()
+        }
     }
 
     fun setViewState(enabled: Boolean) {
-        viewIsEnabled = enabled
-        invalidate()
+        if (viewIsEnabled != enabled) {
+            viewIsEnabled = enabled
+            invalidate()
+        }
     }
 
     private fun getPaint() = if (darkTheme) PAINT_DARK_THEME else PAINT_LIGHT_THEME

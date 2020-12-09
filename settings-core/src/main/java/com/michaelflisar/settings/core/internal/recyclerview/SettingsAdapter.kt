@@ -1,19 +1,23 @@
 package com.michaelflisar.settings.core.internal.recyclerview
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.michaelflisar.settings.core.*
-import com.michaelflisar.settings.core.classes.*
+import com.michaelflisar.settings.core.animateVisibility
+import com.michaelflisar.settings.core.classes.DialogContext
+import com.michaelflisar.settings.core.classes.SettingsDependency
+import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
+import com.michaelflisar.settings.core.classes.SettingsState
 import com.michaelflisar.settings.core.enums.HelpStyle
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.internal.SettingsItemsUtil
 import com.michaelflisar.settings.core.internal.SettingsPayload
 import com.michaelflisar.settings.core.internal.SimpleAdapterDataObserver
 import com.michaelflisar.settings.core.internal.Test
-import com.michaelflisar.settings.core.items.SettingsItemBool
+import com.michaelflisar.settings.core.items.SettingsItemCheckboxBool
+import com.michaelflisar.settings.core.items.SettingsItemSwitchBool
 import com.michaelflisar.settings.core.items.base.BaseBaseSettingsItem
 import com.mikepenz.fastadapter.FastAdapter
 import com.mikepenz.fastadapter.IAdapter
@@ -25,9 +29,9 @@ import com.mikepenz.fastadapter.listeners.ItemFilterListener
 
 internal class SettingsAdapter(
         val dialogContext: DialogContext,
-        customItem: SettingsCustomObject,
+        settingsData: ISettingsData,
         settings: List<ISetting<*>>,
-        dependencies: List<SettingsDependency>,
+        dependencies: List<SettingsDependency<*>>,
         val setup: SettingsDisplaySetup,
         state: SettingsState?
 ) {
@@ -43,9 +47,7 @@ internal class SettingsAdapter(
 
     init {
 
-        // TODO: setup definieren: expandable yes/no, onlyOneExpandable yes/no, ...
-
-        items = SettingsItemsUtil.getItems(customItem, settings, dependencies, setup, null)
+        items = SettingsItemsUtil.getItems(settingsData, settings, dependencies, setup, null)
 
         // 1) set up expandable extension
         if (setup.expandable) {
@@ -56,7 +58,7 @@ internal class SettingsAdapter(
         if (Test.ADAPTER_TO_USE == Test.ADAPTER.FAST_ADAPTER) {
             itemAdapter.itemFilter.filterPredicate = { item: ISettingsItem<*, *, *>, constraint: CharSequence? ->
                 val valid = item.validForFilter(constraint?.toString() ?: "")
-                Log.d("TEST", "Constraint: $constraint | ${item.item.label.get(SettingsManager.context)} | valid = $valid")
+                //Log.d("TEST", "Constraint: $constraint | ${item.item.label.get(SettingsManager.context)} | valid = $valid")
                 valid
             }
             itemAdapter.itemFilter.itemFilterListener = object : ItemFilterListener<ISettingsItem<*, *, *>> {
@@ -95,7 +97,8 @@ internal class SettingsAdapter(
         // add event hooks
         fastAdapter.addEventHook(BaseBaseSettingsItem.EVENT_HOOK_HELP_CLICKED)
         fastAdapter.addEventHook(BaseBaseSettingsItem.EVENT_HOOK_IS_CUSTOM_ENABLED)
-        fastAdapter.addEventHook(SettingsItemBool.EVENT_HOOK)
+        fastAdapter.addEventHook(SettingsItemCheckboxBool.EVENT_HOOK)
+        fastAdapter.addEventHook(SettingsItemSwitchBool.EVENT_HOOK)
 
         // 3) create items from settings and add them to the adapter
         itemAdapter.add(items)
@@ -138,20 +141,16 @@ internal class SettingsAdapter(
         emptyView?.animateVisibility(if (isEmpty) View.VISIBLE else View.GONE)
         // this breaks the layout but it's not necessary at all
         //recyclerView?.animateVisibility(if (isEmpty) View.INVISIBLE else View.VISIBLE)
-        Log.d("ADAPTER COUNT", "empty: $empty | $emptyView")
+        //Log.d("ADAPTER COUNT", "empty: $empty | $emptyView")
     }
 
     private fun onFilterChanged(filter: String) {
         if (Test.ADAPTER_TO_USE == Test.ADAPTER.FAST_ADAPTER_WITH_CUSTOM_FILTER) {
             // TODO: asynchron ausführen!
-            val filtered = if (filter.isEmpty()) {
-                items
-            } else {
-                items.filter { item ->
-                    val valid = item.validForFilter(filter)
-                    Log.d("TEST", "Constraint: $filter | ${item.item.label.get(SettingsManager.context)} | valid = $valid")
-                    valid
-                }
+            val filtered = items.filter { item ->
+                val valid = item.validForFilter(filter)
+                //Log.d("TEST", "Constraint: $filter | ${item.item.label.get(SettingsManager.context)} | valid = $valid")
+                valid
             }.apply {
                 forEach { it.filterSubItems(filter) }
             }
@@ -165,7 +164,7 @@ internal class SettingsAdapter(
         }
     }
 
-    fun getExpandedIds(items: List<IItem<*>>?  = null): ArrayList<Long> {
+    fun getExpandedIds(items: List<IItem<*>>? = null): ArrayList<Long> {
         val itemsToUse = items ?: itemAdapter.adapterItems
         val ids = ArrayList<Long>()
         itemsToUse.forEach {
@@ -184,7 +183,7 @@ internal class SettingsAdapter(
         }
     }
 
-    fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+    fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
         notifyItemChanged(dependency.childThatDependsOnParent, payload)
     }
 

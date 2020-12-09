@@ -4,9 +4,10 @@ import com.michaelflisar.settings.core.interfaces.ISetting
 import com.michaelflisar.settings.core.settings.InfoSetting
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
+@Suppress("NAME_SHADOWING")
 class SettingsDefinition(
         val settings: List<ISetting<*>>,
-        val dependencies: List<SettingsDependency>,
+        val dependencies: List<SettingsDependency<*>>,
         updateNumbering: Boolean = true,
         includeInfoSettingsInNumbering: Boolean = false
 ) {
@@ -19,7 +20,7 @@ class SettingsDefinition(
     }
 
     private fun updateNumbering(setting: ISetting<*>, index: Int, indexAdjustment: Int, parentNumbering: List<Int>, includeInfoSettingsInNumbering: Boolean): Int {
-        var indexAdjustment = calcNumbering(setting, index, indexAdjustment, parentNumbering, includeInfoSettingsInNumbering)
+        val indexAdjustment = calcNumbering(setting, index, indexAdjustment, parentNumbering, includeInfoSettingsInNumbering)
         if (setting is SettingsGroup) {
             var nestedIndexAdjustment = 0
             setting.getItems().forEachIndexed { index, item ->

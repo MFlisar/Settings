@@ -7,11 +7,12 @@ import android.graphics.Color
 import android.util.TypedValue
 import androidx.annotation.ColorInt
 import androidx.annotation.Size
-import com.michaelflisar.settings.core.settings.SettingsGroup
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.settings.SettingsGroup
 
 
 object SettingsUtils {
+
     fun dpToPx(dp: Int): Int {
         return (dp * Resources.getSystem().displayMetrics.density).toInt()
     }
@@ -38,21 +39,29 @@ object SettingsUtils {
         return c
     }
 
-    fun getAllIds(settings: List<ISetting<*>>): List<Long> {
-        val data = ArrayList<Long>()
+    fun getItemsAsFlatList(settings: List<ISetting<*>>): List<ISetting<*>> {
+        val data = ArrayList<ISetting<*>>()
         for (setting in settings) {
-            data.add(setting.id)
+            data.add(setting)
             if (setting is SettingsGroup) {
-                data.addAll(getAllIds(setting.getItems()))
+                data.addAll(getItemsAsFlatList(setting.getItems()))
             }
         }
         return data
     }
 
-    fun checkDistinctIds(settings: List<ISetting<*>>): Boolean {
+    fun getAllIds(settings: List<ISetting<*>>): List<Long> {
+        return getItemsAsFlatList(settings).map { it.id }
+    }
+
+    fun checkUniqueIds(settings: List<ISetting<*>>, throwException: Boolean): Boolean {
         val ids = getAllIds(settings)
         val distinctIds = ids.distinct()
-        return ids.size == distinctIds.size
+        val ok = ids.size == distinctIds.size
+        if (!ok && throwException) {
+            throw RuntimeException("Duplicate IDs in settings found, please fix this!")
+        }
+        return ok
     }
 
     @ColorInt

@@ -2,16 +2,25 @@ package com.michaelflisar.settings.core.items.setups
 
 import android.os.Parcelable
 import com.michaelflisar.settings.core.interfaces.ISettingsListItem
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class ListSetup(
         val items: ArrayList<ISettingsListItem>,
-        val mode: Mode = Mode.Popup,
-        val iconPosition: IconPosition,
-        val style: Style = Style.Default
+        val mode: Mode = DEFAULT_MODE,
+        val iconPosition: IconPosition = DEFAULT_ICON_POSITION,
+        val style: Style = DEFAULT_STYLE,
+        val showTitleInPopup: Boolean = DEFAULT_SHOW_TITLE_IN_POPUP
 ) : Parcelable {
-    fun getItemByID(id: Long) = items.find { it.id == id }!!
+
+    companion object {
+        var DEFAULT_MODE: Mode = Mode.Popup
+        var DEFAULT_ICON_POSITION: IconPosition = IconPosition.Right
+        var DEFAULT_STYLE: Style = Style.Default
+        var DEFAULT_SHOW_TITLE_IN_POPUP: Boolean = true
+    }
+
+    fun getItemById(id: Long) = items.find { it.id == id }
     fun getItemByIndex(index: Int) = items[index]
     fun getIndex(item: ISettingsListItem) = items.indexOf(item)
 

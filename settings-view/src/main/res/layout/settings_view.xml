@@ -43,32 +43,45 @@
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/vp"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal" />
 
     </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabFilter"
+        style="@style/SettingsButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_baseline_search_24"
+        android:visibility="invisible"
+        app:elevation="8dp"
+        app:layout_behavior="com.michaelflisar.settings.view.AdvancedHideBottomViewOnScrollBehaviour" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cvFilter"
         style="@style/SettingsSearchBarContainerStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/settings_search_bar_height"
         android:layout_gravity="bottom"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
+        android:visibility="invisible"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
         app:cardUseCompatPadding="false"
         app:contentPadding="0dp"
-        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior">
+        app:layout_behavior="com.michaelflisar.settings.view.AdvancedHideBottomViewOnScrollBehaviour">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilFilter"
             style="@style/SettingsSearchBar.TextInputLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_baseline_search_24">
 

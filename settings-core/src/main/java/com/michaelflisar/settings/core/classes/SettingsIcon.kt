@@ -9,7 +9,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.material.tabs.TabLayout
 import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.interfaces.ISettingsIcon
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 
 @Parcelize

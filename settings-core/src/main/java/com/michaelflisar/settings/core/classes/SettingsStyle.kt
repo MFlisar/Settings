@@ -2,7 +2,8 @@ package com.michaelflisar.settings.core.classes
 
 import android.os.Parcelable
 import com.michaelflisar.settings.core.R
-import kotlinx.android.parcel.Parcelize
+import com.michaelflisar.settings.core.decorator.Style
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class SettingsStyle(
@@ -15,11 +16,6 @@ class SettingsStyle(
 ) : Parcelable {
 
 
-    enum class Style {
-        Flat,
-        CardsRounded,
-        CardsRect
-    }
 
     sealed class SubGroupColorMode : Parcelable {
         @Parcelize

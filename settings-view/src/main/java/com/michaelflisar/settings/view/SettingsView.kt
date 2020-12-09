@@ -2,21 +2,30 @@ package com.michaelflisar.settings.view
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.graphics.Color
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.IntDef
+import androidx.cardview.widget.CardView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doOnTextChanged
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.transition.Transition
+import androidx.transition.TransitionManager
+import com.google.android.material.color.MaterialColors
+import com.google.android.material.transition.MaterialContainerTransform
+import com.google.android.material.transition.MaterialFade
 import com.michaelflisar.settings.core.Settings
 import com.michaelflisar.settings.core.SettingsUtils
 import com.michaelflisar.settings.core.classes.SettingsState
 import com.michaelflisar.settings.view.databinding.SettingsViewBinding
-import kotlinx.android.parcel.Parcelize
-
+import kotlinx.parcelize.Parcelize
 
 class SettingsView @JvmOverloads constructor(
         context: Context,
@@ -34,9 +43,19 @@ class SettingsView @JvmOverloads constructor(
         const val TYPE_PAGER = 1
     }
 
-    private val binding: SettingsViewBinding
+    val binding: SettingsViewBinding
     private val searchEnabled: Boolean
-    private val hideSearchOnScroll: Boolean
+    private var hideSearchOnScroll: Boolean
+
+    private val showHideSearchInSmallList = true
+
+    private val switchToListOnSearch = true
+
+    private val cvFilterBehaviour: Behavior<View>?
+    private val fabFilterBehaviour: Behavior<View>?
+
+    @LayoutStyle
+    private var originalLayoutStyle: Int
 
     @LayoutStyle
     private var layoutStyle: Int
@@ -60,21 +79,27 @@ class SettingsView @JvmOverloads constructor(
         searchEnabled = readAttrBool(typedArray, R.styleable.SettingsView_searchEnabled)
         hideSearchOnScroll = readAttrBool(typedArray, R.styleable.SettingsView_hideSearchOnScroll)
         layoutStyle = readAttrInt(typedArray, R.styleable.SettingsView_layoutStyle)
+        originalLayoutStyle = layoutStyle
         typedArray?.recycle()
 
         // 3) apply custom settings
+        cvFilterBehaviour = (binding.cvFilter.layoutParams as LayoutParams).behavior
+        fabFilterBehaviour = (binding.fabFilter.layoutParams as LayoutParams).behavior
         if (!hideSearchOnScroll) {
             (binding.cvFilter.layoutParams as LayoutParams).behavior = null
+            (binding.fabFilter.layoutParams as LayoutParams).behavior = null
         }
+        initSearchBar()
 
         // 4) apply style
-        requestStyleChanged(layoutStyle, true)
+        requestStyleChanged(layoutStyle, true, true)
 
         binding.tilFilter.editText?.doOnTextChanged { text, _, _, _ ->
             // forward filter string to setting objects
             val filter = text?.toString() ?: ""
+            val oldFilter = settings?.filter ?: ""
             settings?.filter(filter)
-            onFilterChanged(filter)
+            onFilterChanged(filter, oldFilter, true)
         }
     }
 
@@ -111,7 +136,7 @@ class SettingsView @JvmOverloads constructor(
         super.onRestoreInstanceState(state.superState)
     }
 
-    fun restoreState(state: SettingsState) {
+    private fun restoreState(state: SettingsState) {
         settings?.let { s ->
             // all pages do restore theirself automatically (SettingsFragment takes care of this!)
             // we only need to restore the sourrounding state
@@ -120,11 +145,11 @@ class SettingsView @JvmOverloads constructor(
             if (layoutStyle == TYPE_LIST) {
                 state.restore(s, binding.rvSettings)
                 s.filter(state.filter)
-                onFilterChanged(state.filter)
+                onFilterChanged(state.filter, state.filter, false)
             } else {
                 state.restore(s, binding.vp)
                 s.filter(state.filter)
-                onFilterChanged(state.filter)
+                onFilterChanged(state.filter, state.filter, false)
             }
         }
     }
@@ -140,6 +165,7 @@ class SettingsView @JvmOverloads constructor(
     // ------------------------
 
     fun bind(viewContext: Settings.ViewContext, state: SettingsState, settings: Settings) {
+        unbind(true)
         this.viewContext = viewContext
         this.settings = settings
         settings.setup.noDataFoundIcon?.takeIf { it > 0 }?.let {
@@ -148,6 +174,7 @@ class SettingsView @JvmOverloads constructor(
         settings.setup.noSearchResults.takeIf { it > 0 }?.let {
             binding.vEmpty.tvEmpty.setText(it)
         }
+        settings.setup.additionalListBottomSpace = getBottomDecoratorSpace()
 
         if (layoutStyle == TYPE_LIST) {
             settings.bind(viewContext, state, binding.rvSettings, binding.vEmpty.root)
@@ -168,13 +195,8 @@ class SettingsView @JvmOverloads constructor(
             viewContext = null
     }
 
-    fun rebind(state: SettingsState, settings: Settings) {
-        unbind(false)
-        bind(viewContext!!, state, settings)
-    }
-
     fun updateStyle(@LayoutStyle style: Int) {
-        requestStyleChanged(style)
+        requestStyleChanged(style, true, false)
         settings?.let {
             val state = it.getViewState()!!
             unbind(false)
@@ -182,39 +204,176 @@ class SettingsView @JvmOverloads constructor(
         }
     }
 
+    fun updateHideSearchOnScroll(enabled: Boolean) {
+        hideSearchOnScroll = enabled
+        if (!hideSearchOnScroll) {
+            (binding.cvFilter.layoutParams as LayoutParams).behavior = null
+            (binding.fabFilter.layoutParams as LayoutParams).behavior = null
+        } else {
+            (binding.cvFilter.layoutParams as LayoutParams).behavior = cvFilterBehaviour
+            (binding.fabFilter.layoutParams as LayoutParams).behavior = fabFilterBehaviour
+        }
+    }
+
     fun updateFilter(filter: String) {
         if (!searchEnabled) {
             return
         }
+        val oldFilter = settings?.filter ?: ""
         settings?.filter(filter)
-        onFilterChanged(filter)
+        onFilterChanged(filter, oldFilter, false)
+    }
+
+    // ------------------------
+    // list / search bar functions
+    // ------------------------
+
+    private fun getBottomDecoratorSpace(): Int {
+        if (!searchEnabled || hideSearchOnScroll) {
+            return 0
+        } else {
+            val paramsCompat = binding.cvFilter.layoutParams as MarginLayoutParams
+            val space = SettingsUtils.dimen(context, R.dimen.settings_search_bar_height) + paramsCompat.bottomMargin * 2 /* 2x for extra padding above search bar as well */
+            return space
+        }
+    }
+
+    private fun buildContainerTransformation() =
+            MaterialContainerTransform().apply {
+                containerColor = MaterialColors.getColor(binding.root, R.attr.colorSecondary)
+                scrimColor = Color.TRANSPARENT
+                duration = 300
+                interpolator = FastOutSlowInInterpolator()
+                fadeMode = MaterialContainerTransform.FADE_MODE_IN
+            }
+
+    private fun initSearchBar() {
+        if (searchEnabled) {
+
+//            if (hideSearchOnScroll) {
+                val searchBarBehaviour = fabFilterBehaviour /*(binding.fabFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
+                searchBarBehaviour.setShowHideInSmallList(showHideSearchInSmallList)
+                val searchBarBehaviour2 = cvFilterBehaviour /* (binding.cvFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
+                searchBarBehaviour2.setShowHideInSmallList(showHideSearchInSmallList)
+                searchBarBehaviour.setCallback { begin, hide ->
+                    if (!begin && hide) {
+                        hideSearchBar(true)
+                    }
+                }
+//            }
+            binding.fabFilter.post {
+                val transition = MaterialFade().apply {
+                    duration = 2000
+                }
+                TransitionManager.beginDelayedTransition(binding.root as ViewGroup, transition)
+                binding.fabFilter.visibility = View.VISIBLE
+            }
+            binding.fabFilter.setOnClickListener {
+                showSearchBar()
+            }
+
+            binding.tilFilter.editText?.setOnKeyListener { view, keyCode, event ->
+                if (event.action == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
+                    hideSearchBar(false)
+                    true
+                } else
+                    false
+            }
+        } else {
+            val visibilitySearch = View.GONE
+            updateViewVisibility(binding.fabFilter, visibilitySearch)
+            updateViewVisibility(binding.cvFilter, visibilitySearch)
+        }
+    }
+
+    private fun hideSearchBar(instantly: Boolean) {
+        if (binding.cvFilter.visibility != View.VISIBLE) {
+            return
+        }
+        if (!instantly) {
+            val transition = buildContainerTransformation()
+            transition.startView = binding.cvFilter
+            transition.endView = binding.fabFilter
+            transition.addTarget(binding.fabFilter)
+            TransitionManager.beginDelayedTransition(binding.root as ViewGroup, transition)
+        }
+        binding.cvFilter.visibility = View.INVISIBLE
+        binding.fabFilter.visibility = View.VISIBLE
+    }
+
+    private fun showSearchBar() {
+        if (binding.cvFilter.visibility == View.VISIBLE) {
+            return
+        }
+        val transition = buildContainerTransformation()
+        transition.startView = binding.fabFilter
+        transition.endView = binding.cvFilter
+        transition.addTarget(binding.cvFilter)
+        transition.addListener(object : Transition.TransitionListener {
+            override fun onTransitionStart(transition: Transition) {
+            }
+
+            override fun onTransitionEnd(transition: Transition) {
+                binding.tilFilter.requestFocus()
+            }
+
+            override fun onTransitionCancel(transition: Transition) {
+            }
+
+            override fun onTransitionPause(transition: Transition) {
+            }
+
+            override fun onTransitionResume(transition: Transition) {
+            }
+        })
+        TransitionManager.beginDelayedTransition(binding.root as ViewGroup, transition)
+        binding.cvFilter.visibility = View.VISIBLE
+        binding.fabFilter.visibility = View.INVISIBLE
     }
 
     // ------------------------
     // private helper functions
     // ------------------------
 
-    private fun onFilterChanged(filter: String) {
+    private fun onFilterChanged(filter: String, oldFilter: String, calledFromEditText: Boolean) {
         if (!searchEnabled) {
             return
         }
-        val f = filter ?: ""
-        if (binding.tilFilter.editText?.text.toString() != f) {
-            binding.tilFilter.editText?.setText(f)
+        if (oldFilter != filter && !calledFromEditText) {
+            binding.tilFilter.editText?.setText(filter)
+            if (filter.isNotEmpty()) {
+                showSearchBar()
+            }
+//            binding.tilFilter.isHelperTextEnabled = true
+//            binding.tilFilter.helperText = "Showing x/y settings..."
+//            binding.tilFilter.hint = "Hint..."
+        }
+
+        if (switchToListOnSearch && originalLayoutStyle == TYPE_PAGER) {
+            if (oldFilter.isEmpty() && filter.isNotEmpty()) {
+                requestStyleChanged(TYPE_LIST, false, false)
+                bind(viewContext!!, SettingsState(settings!!.filter, settings!!.getViewState()?.expandedIds?.let { ArrayList(it) }
+                        ?: ArrayList(), 0, 0), settings!!)
+            } else if (filter.isEmpty() && oldFilter.isNotEmpty()) {
+                requestStyleChanged(TYPE_PAGER, false, false)
+                bind(viewContext!!, SettingsState(settings!!.filter, settings!!.getViewState()?.expandedIds?.let { ArrayList(it) }
+                        ?: ArrayList(), 0, 0), settings!!)
+            }
         }
     }
 
-    private fun requestStyleChanged(@LayoutStyle style: Int, init: Boolean = false) {
+    private fun requestStyleChanged(@LayoutStyle style: Int, updateOriginalStyle: Boolean, init: Boolean) {
         if (!init && layoutStyle == style) {
             return
         }
         layoutStyle = style
+        if (updateOriginalStyle) {
+            originalLayoutStyle = style
+        }
 
-        val visibilitySearch = if (searchEnabled) View.VISIBLE else View.GONE
         val visibilityList = if (layoutStyle == TYPE_LIST) View.VISIBLE else View.GONE
         val visibilityViewPager = if (layoutStyle == TYPE_PAGER) View.VISIBLE else View.GONE
 
-        updateViewVisibility(binding.cvFilter, visibilitySearch)
         updateViewVisibility(binding.rvSettings, visibilityList)
         updateViewVisibility(binding.vEmpty.tvEmpty, visibilityList)
         updateViewVisibility(binding.vEmpty.ivEmpty, visibilityList)

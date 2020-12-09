@@ -7,11 +7,12 @@ import com.michaelflisar.settings.core.R
 import com.michaelflisar.settings.core.enums.CountDisplayType
 import com.michaelflisar.settings.core.enums.CustomLayoutStyle
 import com.michaelflisar.settings.core.enums.HelpStyle
-import com.michaelflisar.settings.core.enums.IntentionMode
-import com.michaelflisar.settings.core.interfaces.ISettingsFilter
+import com.michaelflisar.settings.core.decorator.IntentionMode
 import com.michaelflisar.settings.core.interfaces.ISettingsFeedbackHandler
+import com.michaelflisar.settings.core.interfaces.ISettingsFilter
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
-import kotlinx.android.parcel.Parcelize
+import com.michaelflisar.settings.core.decorator.CardGroupDecorator
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SettingsDisplaySetup(
@@ -46,11 +47,13 @@ data class SettingsDisplaySetup(
         val highlightForegroundColor: Int = Color.BLACK,
         val noDataFoundIcon: Int? = null,
         val helpStyle: HelpStyle = HelpStyle.Icon(HelpStyle.Mode.Click),
+        var additionalListBottomSpace: Int = 0,
+        val groupTopLevelItemsWithoutGroups: Boolean = false,
 
         // Groups
         val showEmptyGroups: Boolean = false,
 
-        // Group Headers
+        // Style
         val style: SettingsStyle = SettingsStyle(),
 
         // Filter
@@ -65,5 +68,18 @@ data class SettingsDisplaySetup(
         if (item.item.clickable && item.item.editable) {
             feedbackHandler.showCantChangeSettingInfo(item, view)
         }
+    }
+
+    fun createSettingsViewsDecorator(): CardGroupDecorator {
+        return CardGroupDecorator(
+                style.cornerRadiusInDp,
+                style.topLevelStyle,
+                style.subLevelStyle,
+                groupTopLevelItemsWithoutGroups,
+                style.elevationInDp,
+                intentionMode,
+                intentInDp,
+                R.id.settings_item_group
+        )
     }
 }

@@ -1,7 +1,7 @@
 package com.michaelflisar.settings.core.enums
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class HelpStyle : Parcelable {
 

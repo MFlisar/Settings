@@ -1,12 +1,11 @@
 package com.michaelflisar.settings.core
 
 import android.content.Context
+import android.os.Parcelable
 import com.michaelflisar.dialogs.DialogSetup
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
-import com.michaelflisar.settings.core.interfaces.ISetting
-import com.michaelflisar.settings.core.interfaces.ISettingsChangedCallback
-import com.michaelflisar.settings.core.interfaces.ISettingsDialogEventHandler
-import com.michaelflisar.settings.core.interfaces.ISettingsStorageManager
+import com.michaelflisar.settings.core.classes.DialogContext
+import com.michaelflisar.settings.core.enums.ChangeType
+import com.michaelflisar.settings.core.interfaces.*
 import com.michaelflisar.settings.core.internal.ConcurrentSaveMutableList
 
 object SettingsManager {
@@ -17,28 +16,49 @@ object SettingsManager {
     private val callbacks: ConcurrentSaveMutableList<ISettingsChangedCallback> = ConcurrentSaveMutableList()
     private val dialogCallbacks: ConcurrentSaveMutableList<ISettingsDialogEventHandler<*, *>> = ConcurrentSaveMutableList()
 
+    internal var settingsProvider: ((id: Long) -> ISetting<*>)? = null
+
+    //var DEBUGGER: ((tag: String, log: String) -> Unit)? = null
     lateinit var context: Context
         private set
 
-    internal lateinit var storageManager: ISettingsStorageManager
+    private var storageManagerInstance: ISettingsStorageManager? = null
+    internal val storageManager: ISettingsStorageManager
+        get() {
+            return storageManagerInstance ?: throw RuntimeException("You did not call SettingsManager.init(...) yet!")
+        }
 
     fun init(context: Context, storageManager: ISettingsStorageManager): SettingsManager {
 
         // 1) save app context
         this.context = context.applicationContext
 
-        // 2) save storage manager
-        this.storageManager = storageManager
+        // 2) save storage manager and settings
+        this.storageManagerInstance = storageManager
 
         // 3) init all modules (this should add their dialog callbacks!)
         storageManager.init()
 
         // 4) handle dialog events and forward them to the dialog callbacks
-        DialogSetup.resultHandler = { event ->
-            pushDialogEvent(event)
+        DialogSetup.addResultHandler { event, fragment ->
+            pushDialogEvent(event, fragment.parentDialogContext)
         }
 
         return this
+    }
+
+    /*
+     * provide an [ISettingsProvider] to avoid the need to parcel and unparcel settings
+     * this can improve performance if a lot of settings are used
+     */
+    fun setSettingsProvider(provider: (id: Long) -> ISetting<*>) {
+        settingsProvider = provider
+    }
+
+    fun reset() {
+        storageManagerInstance = null
+        callbacks.clear()
+        dialogCallbacks.clear()
     }
 
     fun registerCallback(callback: ISettingsChangedCallback) {
@@ -54,28 +74,22 @@ object SettingsManager {
         return this
     }
 
-    fun pushDialogEvent(event: Any) {
+    fun pushDialogEvent(event: Any, dialogContext: DialogContext) {
         dialogCallbacks.forEach {
             // forward to callback if type fits the handler
             if (it.getDialogType(event) == it.dialogType) {
-                it.onDialogEvent(event)
+                it.onDialogEvent(event, dialogContext)
             }
         }
     }
 
     // -----------------
-    // internal notifier functions
+    // notifier functions
     // -----------------
 
-    internal fun notifyOnSettingsChangedCallbacks(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
+    fun notifyOnSettingsChangedCallbacks(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
         callbacks.forEach {
-            it.onSettingChanged(setting, customItem, oldValue, newValue)
-        }
-    }
-
-    internal fun notifyOnCustomEnabledCallbacks(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-        callbacks.forEach {
-            it.onCustomEnabledChanged(setting, customItem, oldValue, newValue)
+            it.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
         }
     }
 }

@@ -1,21 +1,19 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'com.github.dcendents.android-maven'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'com.github.dcendents.android-maven'
+}
 
 group = 'com.github.MFlisar'
-
-androidExtensions {
-    experimental = true
-}
 
 android {
 
     compileSdkVersion setup.compileSdk
 
-    dataBinding.enabled = setup.enableDataBinding
-    viewBinding.enabled = setup.enableViewBinding
+    buildFeatures {
+        viewBinding setup.enableViewBinding
+    }
 
     defaultConfig {
         minSdkVersion setup.minSdk
@@ -61,14 +59,14 @@ dependencies {
     // Library
     // ------------------------
 
-    implementation project(':settings-core')
+    implementation project(':settings.core')
 
     // ------------------------
     // MaterialDialogFragments
     // ------------------------
 
-    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs:${versions.dialogFragments}"
-    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs-color:${versions.dialogFragments}"
+    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs:${versions.materialDialogFragments}"
+    implementation "com.github.MFlisar.MaterialDialogFragments:dialogs-color:${versions.materialDialogFragments}"
 
     // is anyways added in dialogs-color
     // => we just want the background color from it here as well inside a circle image

@@ -10,6 +10,7 @@ import com.michaelflisar.settings.color.databinding.SettingsItemColorBinding
 import com.michaelflisar.settings.core.settings.base.BaseSetting
 import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
 import com.michaelflisar.settings.core.classes.*
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.items.base.BaseSettingsItemDialog
 import com.michaelflisar.settings.core.show
@@ -19,16 +20,15 @@ class SettingsItemColor(
         override var index: Int,
         override var item: BaseSetting<Int, *, ColorSetup>,
         override var itemData: SettingsMetaData,
-        override var settingsCustomItem: SettingsCustomObject,
+        override var settingsData: ISettingsData,
         setup: SettingsDisplaySetup
 ) : BaseSettingsItemDialog<Int, SettingsItemColorBinding, ColorSetup, BaseSetting<Int, *, ColorSetup>>(setup) {
 
     override val type: Int = R.id.settings_item_color
     override val dialogHandler = DIALOG_HANDLER
 
-    override fun bindSubViews(bindingTop: SettingsItemColorBinding, bindingBottom: SettingsItemColorBinding?, payloads: List<Any>, topValue: Int, bottomValue: Int) {
-        (bindingTop.vDisplayValue.background as GradientDrawable).setColor(topValue)
-        (bindingBottom!!.vDisplayValue.background as GradientDrawable).setColor(bottomValue)
+    override fun bindSubView(binding: SettingsItemColorBinding, payloads: List<Any>, value: Int, topBinding: Boolean) {
+        (binding.vDisplayValue.background as GradientDrawable).setColor(value)
     }
 
     override fun createSubBinding(inflater: LayoutInflater, parent: ViewGroup?, topBinding: Boolean): SettingsItemColorBinding {
@@ -44,15 +44,16 @@ class SettingsItemColor(
 
             override val dialogType: Int = R.id.settings_dialog_type_item_color
 
-            override fun showDialog(view: View, dialogContext: DialogContext, item: BaseSetting<Int, *, ColorSetup>, customItem: SettingsCustomObject) {
+            override fun showDialog(view: View, dialogContext: DialogContext, settingsItem: ISettingsItem<Int, *, BaseSetting<Int, *, ColorSetup>>, settingsData: ISettingsData) {
 
-                val value = item.readSetting(customItem)
-                val extra = createDialogBundle(item, customItem)
+                val item = settingsItem.item
+                val value = item.read(settingsData)
+                val extra = createDialogBundle(item, settingsData)
 
                 DialogColor(
                         item.id.toInt(),
                         item.label,
-                        darkTheme = dialogContext.setup.useDarkTheme,
+                        darkTheme = settingsItem.setup.useDarkTheme,
                         color = value,
                         showAlpha = item.setup.supportAlpha,
                         extra = extra
@@ -61,7 +62,7 @@ class SettingsItemColor(
                         .show(dialogContext)
             }
 
-            override fun onDialogEvent(event: DialogColorEvent, setting: BaseSetting<Int, *, ColorSetup>, customItem: SettingsCustomObject) {
+            override fun onDialogEvent(dialogContext: DialogContext, event: DialogColorEvent, setting: BaseSetting<Int, *, ColorSetup>, settingsData: ISettingsData) {
                 val selectedItem = event.data?.color
                 selectedItem?.let {
 
@@ -69,7 +70,7 @@ class SettingsItemColor(
                     val newValue = selectedItem
 
                     // 2) save new value -> this will automatically notify callbacks if setting has changed
-                    setting.writeSetting(customItem, newValue)
+                    setting.write(settingsData, newValue)
                 }
             }
         }

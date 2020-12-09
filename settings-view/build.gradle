@@ -1,21 +1,20 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'com.github.dcendents.android-maven'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+    id 'com.github.dcendents.android-maven'
+}
 
 group = 'com.github.MFlisar'
-
-androidExtensions {
-    experimental = true
-}
 
 android {
 
     compileSdkVersion setup.compileSdk
 
-    dataBinding.enabled = setup.enableDataBinding
-    viewBinding.enabled = setup.enableViewBinding
+    buildFeatures {
+        viewBinding setup.enableViewBinding
+    }
 
     defaultConfig {
         minSdkVersion setup.minSdk
@@ -52,10 +51,10 @@ dependencies {
     // AndroidX
     // ------------------------
 
-    implementation "androidx.core:core-ktx:${androidx.corektx}"
+    implementation "androidx.core:core-ktx:${androidx.core}"
     implementation "androidx.appcompat:appcompat:${androidx.appcompat}"
 //    implementation "androidx.recyclerview:recyclerview:${androidx.recyclerview}"
-//    implementation "androidx.cardview:cardview:${androidx.cardview}"
+    implementation "androidx.cardview:cardview:${androidx.cardview}"
     implementation "com.google.android.material:material:${androidx.material}"
     implementation "androidx.constraintlayout:constraintlayout:${androidx.constraintLayout}"
 
@@ -63,5 +62,5 @@ dependencies {
     // Library
     // ------------------------
 
-    implementation project(':settings-core')
+    implementation project(':settings.core')
 }

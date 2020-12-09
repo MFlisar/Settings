@@ -2,43 +2,37 @@ package com.michaelflisar.settings.core.settings
 
 import com.michaelflisar.settings.core.settings.base.BaseSetting
 import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
-import com.michaelflisar.settings.core.classes.SettingsIcon
 import com.michaelflisar.settings.core.classes.SettingsMetaData
+import com.michaelflisar.settings.core.enums.SupportType
 import com.michaelflisar.settings.core.interfaces.ISettingsIcon
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
-import com.michaelflisar.settings.core.items.SettingsItemBool
+import com.michaelflisar.settings.core.items.SettingsItemCheckboxBool
+import com.michaelflisar.settings.core.items.SettingsItemSwitchBool
+import com.michaelflisar.settings.core.enums.BooleanStyle
+import com.michaelflisar.settings.core.interfaces.ISettingsData
+import com.michaelflisar.settings.core.items.setups.BoolSetup
 import com.michaelflisar.text.Text
-import com.michaelflisar.text.asText
 import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class BooleanSetting(
+open class BooleanSetting(
         override val id: Long,
         override val label: Text,
         override val info: Text?,
         override val help: Text?,
         override val icon: ISettingsIcon?,
-        override val defaultValue: Boolean,
-        override val defaultIsCustomEnabled: Boolean = false
-) : BaseSetting<Boolean, BooleanSetting, Unit>() {
+        override val supportType: SupportType = SupportType.All,
+        override val editable: Boolean = true
+) : BaseSetting<Boolean, BooleanSetting, BoolSetup>() {
 
     @IgnoredOnParcel
-    override var setup: Unit = Unit
+    override val setup: BoolSetup = BoolSetup()
 
-    // -----------------
-    // default constructors with String or Resource Ints for convenience
-    // -----------------
-
-    constructor(id: Long, label: String, info: String?, help: String?, icon: Int?, defaultValue: Boolean, defaultIsCustomEnabled: Boolean = false) : this(id, label.asText(), info?.asText(), help?.asText(), icon?.let { SettingsIcon(it) }, defaultValue, defaultIsCustomEnabled)
-    constructor(id: Long, label: Int, info: Int?, help: Int?, icon: Int?, defaultValue: Boolean, defaultIsCustomEnabled: Boolean = false) : this(id, label.asText(), info?.asText(), help?.asText(), icon?.let { SettingsIcon(it) }, defaultValue, defaultIsCustomEnabled)
-
-    // -----------------
-    // function implementations
-    // -----------------
-
-    override fun createSettingsItem(parent: ISettingsItem<*, *, *>?, index: Int, itemData: SettingsMetaData, customItem: SettingsCustomObject, setup: SettingsDisplaySetup): ISettingsItem<Boolean, *, *> {
-        return SettingsItemBool(parent, index, this, itemData, customItem, setup)
+    override fun createSettingsItem(parent: ISettingsItem<*, *, *>?, index: Int, itemData: SettingsMetaData, settingsData: ISettingsData, setup: SettingsDisplaySetup): ISettingsItem<Boolean, *, *> {
+        return when (this.setup.style) {
+            BooleanStyle.Checkbox -> SettingsItemCheckboxBool(parent, index, this, itemData, settingsData, setup)
+            BooleanStyle.Switch -> SettingsItemSwitchBool(parent, index, this, itemData, settingsData, setup)
+        }
     }
 }

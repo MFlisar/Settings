@@ -2,7 +2,6 @@ package com.michaelflisar.settings.core.interfaces
 
 import android.view.View
 import com.michaelflisar.settings.core.classes.DialogContext
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
 
 interface ISettingsDialogEventHandler<ValueType, Setting: ISetting<ValueType>> {
 
@@ -19,13 +18,13 @@ interface ISettingsDialogEventHandler<ValueType, Setting: ISetting<ValueType>> {
     /*
      * simply show your dialog
      */
-    fun showDialog(view: View, dialogContext: DialogContext, item: Setting, customItem: SettingsCustomObject)
+    fun showDialog(view: View, dialogContext: DialogContext, settingsItem: ISettingsItem<ValueType, *, Setting>, settingsData: ISettingsData)
 
     /*
      * this function is called with the correct event that fits this handler - simply cast it to what you expect it to be
      *
      * [this getDialogType] is called before this function is called ond this function will only be called with an [event] that fit's this [dialogType]
      */
-    fun onDialogEvent(event: Any)
+    fun onDialogEvent(event: Any, dialogContext: DialogContext)
 
 }

@@ -6,22 +6,30 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.michaelflisar.settings.core.Settings
-import com.michaelflisar.settings.core.classes.*
+import com.michaelflisar.settings.core.SettingsManager
+import com.michaelflisar.settings.core.classes.SettingsDefinition
+import com.michaelflisar.settings.core.classes.SettingsDependency
+import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
+import com.michaelflisar.settings.core.classes.SettingsState
 import com.michaelflisar.settings.core.databinding.SettingsFragmentSettingsBinding
+import com.michaelflisar.settings.core.enums.ChangeType
 import com.michaelflisar.settings.core.interfaces.ISetting
-import com.michaelflisar.settings.core.interfaces.ISettingsChangedCallback
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.internal.SettingsPayload
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
-internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
+internal class SettingsFragment : Fragment() {
 
     companion object {
 
-        fun create(customItem: SettingsCustomObject, group: SettingsGroup, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup, state: SettingsState): SettingsFragment {
+        fun create(settingsData: ISettingsData, group: SettingsGroup, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup, state: SettingsState): SettingsFragment {
             val f = SettingsFragment()
             val args = Bundle().apply {
-                putParcelable("customItem", customItem)
-                putParcelableArrayList("items", ArrayList(group.getItems()))
+                putParcelable("settingsData", settingsData)
+                if (SettingsManager.settingsProvider == null)
+                    putParcelableArrayList("items", ArrayList(group.getItems()))
+                else
+                    putLongArray("itemIds", group.getItems().map { it.id }.toLongArray())
                 putParcelableArrayList("dependencies", ArrayList(dependencies))
                 putParcelable("setup", setup)
                 putParcelable("state", state)
@@ -33,9 +41,9 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
 
     private var binding: SettingsFragmentSettingsBinding? = null
 
-    private lateinit var customItem: SettingsCustomObject
+    private lateinit var settingsData: ISettingsData
     private lateinit var items: ArrayList<ISetting<*>>
-    private lateinit var dependencies: ArrayList<SettingsDependency>
+    private lateinit var dependencies: ArrayList<SettingsDependency<*>>
     private lateinit var setup: SettingsDisplaySetup
     private var state: SettingsState = SettingsState()
     private lateinit var settings: Settings
@@ -44,8 +52,11 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
         super.onCreate(savedInstanceState)
 
         arguments!!.let {
-            customItem = it.getParcelable("customItem")!!
-            items = it.getParcelableArrayList("items")!!
+            settingsData = it.getParcelable("settingsData")!!
+            if (SettingsManager.settingsProvider == null)
+                items = it.getParcelableArrayList("items")!!
+            else
+                items = ArrayList(it.getLongArray("itemIds")!!.map { SettingsManager.settingsProvider!!.invoke(it) })
             dependencies = it.getParcelableArrayList("dependencies")!!
             setup = it.getParcelable("setup")!!
             state = it.getParcelable("state")!!
@@ -58,12 +69,12 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
 //            Log.d("SettingsFragment", "state restored: $state")
         }
 
-        settings = Settings(SettingsDefinition(items, dependencies, false), customItem, setup)
+        settings = Settings(SettingsDefinition(items, dependencies, false), settingsData, setup)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-//        Log.d("SettingsFragment", "onCreateView: $savedInstanceState")
+//        Log.d("SettingsFragment", "onCreateView1: $savedInstanceState")
 
         binding = SettingsFragmentSettingsBinding.inflate(inflater)
         setup.noDataFoundIcon?.takeIf { it > 0 }?.let {
@@ -77,6 +88,9 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
         if (state.filter.isNotEmpty()) {
             updateFilter(state.filter)
         }
+
+//        Log.d("SettingsFragment", "onCreateView2: $savedInstanceState")
+
         return binding!!.root
     }
 
@@ -92,7 +106,7 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
         return settings.getViewState()
     }
 
-    fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+    fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
         settings.onDependencyChanged(dependency, payload)
     }
 
@@ -111,11 +125,7 @@ internal class SettingsFragment : Fragment(), ISettingsChangedCallback {
     // ISettingsChangedCallback - forwards events
     // ---------------
 
-    override fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
-        settings.onSettingChanged(setting, customItem, oldValue, newValue)
-    }
-
-    override fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-        settings.onCustomEnabledChanged(setting, customItem, oldValue, newValue)
+    fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
+        settings.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
     }
 }

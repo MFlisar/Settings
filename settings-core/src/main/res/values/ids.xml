@@ -7,7 +7,8 @@
 
     <item name="settings_item_empty" type="id" />
     <item name="settings_item_group" type="id" />
-    <item name="settings_item_bool" type="id" />
+    <item name="settings_item_checkbox_bool" type="id" />
+    <item name="settings_item_switch_bool" type="id" />
     <item name="settings_item_text" type="id" />
     <item name="settings_item_info" type="id" />
     <item name="settings_item_int" type="id" />

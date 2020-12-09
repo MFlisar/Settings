@@ -1,24 +1,31 @@
 package com.michaelflisar.settings.core.settings.base
 
+import android.os.Parcelable
 import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.classes.NoValidStorageException
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
 import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
-import com.michaelflisar.settings.core.enums.SupportType
+import com.michaelflisar.settings.core.enums.ChangeType
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
 abstract class BaseSetting<ValueType, S : BaseSetting<ValueType, S, Setup>, Setup> : ISetting<ValueType> {
 
-    abstract var setup: Setup
+    abstract val setup: Setup
 
-    override var editable: Boolean = true
+    override val onValueChanged: ((settingsData: ISettingsData, changeType: ChangeType) -> Unit)? = null
+
+//    override val supportType: SupportType = SupportType.All
+
+    override val canHoldData = true // must be false for Unit Types!
+
+    override val valid: Boolean = true
+
+    //    override val editable: Boolean = true
     override val clickable: Boolean
         get() = editable
 
     override var numbering: List<Int> = emptyList()
-
-    override var supportType: SupportType = SupportType.All
 
     override fun isShowNumbers(setup: SettingsDisplaySetup): Boolean = setup.showNumbersForItems
 
@@ -28,58 +35,54 @@ abstract class BaseSetting<ValueType, S : BaseSetting<ValueType, S, Setup>, Setu
         return this as S
     }
 
-//    @Suppress("UNCHECKED_CAST")
-//    fun withSetup(setup: Setup): S {
-//        this.setup = setup
-//        return this as S
-//    }
-
     // ---------------------------
     // public read/write functions
     // ---------------------------
 
-    override fun readRealValue(element: SettingsCustomObject): ValueType {
-        return when (element) {
-            SettingsCustomObject.None -> readGlobal()
-            is SettingsCustomObject.Element -> if (readSettingEnabled(element)) readCustom(element.item) else readGlobal()
+    override fun readRealValue(settingsData: ISettingsData): ValueType {
+        return if (settingsData.isGlobal) {
+            readGlobal(settingsData as ISettingsData.Global)
+        } else {
+            if (readIsEnabled(settingsData as ISettingsData.Element)) readCustom(settingsData) else readGlobal(settingsData.global)
         }
     }
 
-    override fun readSetting(element: SettingsCustomObject): ValueType {
-        return when (element) {
-            SettingsCustomObject.None -> readGlobal()
-            is SettingsCustomObject.Element -> readCustom(element.item)
+    override fun read(settingsData: ISettingsData): ValueType {
+        return if (settingsData.isGlobal) {
+            readGlobal(settingsData as ISettingsData.Global)
+        } else {
+            readCustom(settingsData as ISettingsData.Element)
         }
     }
 
-    override fun writeSetting(element: SettingsCustomObject, value: ValueType) {
-        when (element) {
-            SettingsCustomObject.None -> {
-                val oldValue = readGlobal()
-                if (oldValue != value) {
-                    writeGlobal(value)
-                    SettingsManager.notifyOnSettingsChangedCallbacks(this, element, oldValue, value)
-                }
+    override fun write(settingsData: ISettingsData, value: ValueType) {
+        if (settingsData.isGlobal) {
+            val oldValue = readGlobal(settingsData as ISettingsData.Global)
+            if (oldValue != value) {
+                writeGlobal(settingsData, value)
+                onValueChanged?.invoke(settingsData, ChangeType.GlobalValue)
+                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.GlobalValue, this, settingsData, oldValue, value)
             }
-            is SettingsCustomObject.Element -> {
-                val oldValue = readCustom(element.item)
-                if (oldValue != value) {
-                    writeCustom(element.item, value)
-                    SettingsManager.notifyOnSettingsChangedCallbacks(this, element, oldValue, value)
-                }
+        } else {
+            val oldValue = readCustom(settingsData as ISettingsData.Element)
+            if (oldValue != value) {
+                writeCustom(settingsData, value)
+                onValueChanged?.invoke(settingsData, ChangeType.CustomValue)
+                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomValue, this, settingsData, oldValue, value)
             }
         }
     }
 
-    override fun readSettingEnabled(element: SettingsCustomObject.Element): Boolean {
-        return readIsCustomEnabled(element.item)
+    override fun readIsEnabled(settingsData: ISettingsData.Element): Boolean {
+        return readIsCustomEnabled(settingsData)
     }
 
-    override fun writeSettingEnabled(element: SettingsCustomObject.Element, isEnabled: Boolean) {
-        val oldValue = readIsCustomEnabled(element.item)
+    override fun writeIsEnabled(settingsData: ISettingsData.Element, isEnabled: Boolean) {
+        val oldValue = readIsCustomEnabled(settingsData)
         if (oldValue != isEnabled) {
-            writeIsCustomEnabled(element.item, isEnabled)
-            SettingsManager.notifyOnCustomEnabledCallbacks(this, element, oldValue, isEnabled)
+            writeIsCustomEnabled(settingsData, isEnabled)
+            onValueChanged?.invoke(settingsData, ChangeType.CustomIsEnabled)
+            SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomIsEnabled, this, settingsData, oldValue, isEnabled)
         }
     }
 
@@ -87,33 +90,33 @@ abstract class BaseSetting<ValueType, S : BaseSetting<ValueType, S, Setup>, Setu
     // forward read/write functions to SettingsManager which will use the correct SettingsStorage
     // -----------------
 
-    fun readGlobal(): ValueType {
-        return if (defaultValue == Unit) Unit as ValueType else SettingsManager.storageManager.takeIf { it.supports(this) }?.readGlobal(this) as ValueType
+    private fun readGlobal(settingsData: ISettingsData.Global): ValueType {
+        return if (!canHoldData) Unit as ValueType else SettingsManager.storageManager.takeIf { it.supports(this) }?.readGlobal(this, settingsData) as ValueType
                 ?: throw NoValidStorageException
     }
 
-    fun readCustom(customItem: Any): ValueType {
-        return if (defaultValue == Unit) Unit as ValueType else SettingsManager.storageManager.takeIf { it.supports(this) }?.readCustom(this, customItem) as ValueType
+    private fun readCustom(settingsData: ISettingsData.Element): ValueType {
+        return if (!canHoldData) Unit as ValueType else SettingsManager.storageManager.takeIf { it.supports(this) }?.readCustom(this, settingsData) as ValueType
                 ?: throw NoValidStorageException
     }
 
-    fun readIsCustomEnabled(customItem: Any): Boolean {
-        return if (defaultValue == Unit) false else SettingsManager.storageManager.takeIf { it.supports(this) }?.readCustomEnabled(this, customItem)
+    private fun readIsCustomEnabled(settingsData: ISettingsData.Element): Boolean {
+        return if (!canHoldData) false else SettingsManager.storageManager.takeIf { it.supports(this) }?.readCustomEnabled(this, settingsData)
                 ?: throw NoValidStorageException
     }
 
-    fun writeGlobal(value: ValueType): Boolean {
-        return if (defaultValue == Unit) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeGlobal(this, value)
+    private fun writeGlobal(settingsData: ISettingsData.Global, value: ValueType): Boolean {
+        return if (!canHoldData) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeGlobal(this, value, settingsData)
                 ?: throw NoValidStorageException
     }
 
-    fun writeCustom(customItem: Any, value: ValueType): Boolean {
-        return if (defaultValue == Unit) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeCustom(this, value, customItem)
+    private fun writeCustom(settingsData: ISettingsData.Element, value: ValueType): Boolean {
+        return if (!canHoldData) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeCustom(this, value, settingsData)
                 ?: throw NoValidStorageException
     }
 
-    fun writeIsCustomEnabled(customItem: Any, value: Boolean): Boolean {
-        return if (defaultValue == Unit) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeCustomEnabled(this, value, customItem)
+    private fun writeIsCustomEnabled(settingsData: ISettingsData.Element, value: Boolean): Boolean {
+        return if (!canHoldData) true else SettingsManager.storageManager.takeIf { it.supports(this) }?.writeCustomEnabled(this, value, settingsData)
                 ?: throw NoValidStorageException
     }
 }

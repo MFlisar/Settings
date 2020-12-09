@@ -2,14 +2,19 @@ package com.michaelflisar.settings.core.items.setups
 
 import android.os.Parcelable
 import com.michaelflisar.settings.core.interfaces.ISettingsListItem
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class MultiListSetup(
         val items: ArrayList<ISettingsListItem>,
-        val displayType: DisplayType = DisplayType.Count
+        val displayType: DisplayType = DEFAULT_DISPLAY_TYPE
 ) : Parcelable {
-    fun getItemByID(id: Long) = items.find { it.id == id }!!
+
+    companion object {
+        var DEFAULT_DISPLAY_TYPE: DisplayType = DisplayType.Count
+    }
+
+    fun getItemById(id: Long) = items.find { it.id == id }!!
     fun getItemByIndex(index: Int) = items[index]
     fun getIndex(item: ISettingsListItem) = items.indexOf(item)
 

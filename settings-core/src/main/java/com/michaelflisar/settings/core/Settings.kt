@@ -11,26 +11,26 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.michaelflisar.settings.core.classes.*
+import com.michaelflisar.settings.core.enums.ChangeType
 import com.michaelflisar.settings.core.interfaces.ISetting
 import com.michaelflisar.settings.core.interfaces.ISettingsChangedCallback
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.internal.SettingsItemsUtil
 import com.michaelflisar.settings.core.internal.SettingsPayload
 import com.michaelflisar.settings.core.internal.pager.SettingsFragmentAdapter
 import com.michaelflisar.settings.core.internal.pager.SettingsFragmentAdapter2
 import com.michaelflisar.settings.core.internal.recyclerview.SettingsAdapter
-import com.michaelflisar.settings.core.internal.recyclerview.SettingsViewsDecorator
+import com.michaelflisar.settings.core.internal.recyclerview.SettingsBottomSpaceDecorator
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
 class Settings(
         private val definitions: SettingsDefinition,
-        private val customItem: SettingsCustomObject,
+        private val settingsData: ISettingsData,
         val setup: SettingsDisplaySetup
 ) : ISettingsChangedCallback {
 
     init {
-        if (!SettingsUtils.checkDistinctIds(definitions.settings)) {
-            throw RuntimeException("Duplicate IDs in settings found, please fix this!")
-        }
+        SettingsUtils.checkUniqueIds(definitions.settings, true)
     }
 
     private enum class Bound {
@@ -54,7 +54,7 @@ class Settings(
     fun bind(viewContext: ViewContext, state: SettingsState, tabLayout: TabLayout, viewPager: ViewPager) {
         filter = state.filter
         val def = Definition.PagerDefinitons(viewContext, tabLayout, viewPager)
-        def.init(this, customItem, SettingsItemsUtil.getTopLevelGroups(customItem, definitions.settings, true, definitions.dependencies, setup), definitions.dependencies, setup, state)
+        def.init(this, settingsData, SettingsItemsUtil.getTopLevelGroups(settingsData, definitions.settings, true, definitions.dependencies, setup), definitions.dependencies, setup, state)
         definition = def
         bound = Bound.Pager
         SettingsManager.registerCallback(this)
@@ -63,7 +63,7 @@ class Settings(
     fun bind(viewContext: ViewContext, state: SettingsState, tabLayout: TabLayout, viewPager: ViewPager2) {
         filter = state.filter
         val def = Definition.PagerDefinitons2(viewContext, tabLayout, viewPager)
-        def.init(this, customItem, SettingsItemsUtil.getTopLevelGroups(customItem, definitions.settings, true, definitions.dependencies, setup), definitions.dependencies, setup, state)
+        def.init(this, settingsData, SettingsItemsUtil.getTopLevelGroups(settingsData, definitions.settings, true, definitions.dependencies, setup), definitions.dependencies, setup, state)
         definition = def
         bound = Bound.Pager2
         SettingsManager.registerCallback(this)
@@ -72,7 +72,7 @@ class Settings(
     fun bind(viewContext: ViewContext, state: SettingsState, recyclerView: RecyclerView, emptyView: View?) {
         filter = state.filter
         val def = Definition.ListDefinitions(recyclerView, emptyView)
-        def.init(this, viewContext, customItem, definitions.settings, definitions.dependencies, setup, state)
+        def.init(this, viewContext, settingsData, definitions.settings, definitions.dependencies, setup, state)
         definition = def
         bound = Bound.List
         SettingsManager.registerCallback(this)
@@ -109,7 +109,7 @@ class Settings(
         return false
     }
 
-    internal fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+    internal fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
         definition.onDependencyChanged(dependency, payload)
     }
 
@@ -117,23 +117,16 @@ class Settings(
     // dialog callbacks
     // ------------
 
-    override fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
+    override fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
         // UI needs to be updated
-        definition.onSettingChanged(setting, customItem, oldValue, newValue)
-        // check dependencies
-        checkDependency(setting)
-    }
-
-    override fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-        // UI needs to be updated
-        definition.onCustomEnabledChanged(setting, customItem, oldValue, newValue)
+        definition.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
         // check dependencies
         checkDependency(setting)
     }
 
     private fun checkDependency(setting: ISetting<*>) {
         definitions.dependencies
-                .filter { it.getParent() == setting }
+                .filter { it.checkParent(setting) }
                 .forEach {
                     // notify item changed for each child
                     definition.onDependencyChanged(it, SettingsPayload.DependencyChanged)
@@ -158,19 +151,21 @@ class Settings(
             override val lifeCycle = fragment.lifecycle
         }
 
-        fun getDialogContext(setup: SettingsDisplaySetup): DialogContext {
+        fun getDialogContext(): DialogContext {
             return when (this) {
-                is Activity -> DialogContext.Activity(setup, this.activity)
-                is Fragment -> DialogContext.Fragment(setup, this.fragment)
+                is Activity -> DialogContext.Activity(this.activity)
+                is Fragment -> DialogContext.Fragment(this.fragment)
             }
         }
     }
 
-    sealed class Definition : ISettingsChangedCallback {
+    sealed class Definition {
 
         abstract fun updateFilter(text: String)
         abstract fun getExpandedIds(): ArrayList<Long>
-        internal abstract fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload)
+        internal abstract fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload)
+
+        abstract fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?)
 
         open fun destroy() {
 
@@ -184,9 +179,9 @@ class Settings(
 
             private lateinit var adapter: SettingsFragmentAdapter
 
-            fun init(settings: Settings, customItem: SettingsCustomObject, groups: List<SettingsGroup>, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup, state: SettingsState) {
+            fun init(settings: Settings, settingsData: ISettingsData, groups: List<SettingsGroup>, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup, state: SettingsState) {
                 // 1) create adapter
-                adapter = SettingsFragmentAdapter(viewContext.fragmentManager, customItem, groups, dependencies, setup, state)
+                adapter = SettingsFragmentAdapter(viewContext.fragmentManager, settingsData, groups, dependencies, setup, state)
                 // 2) set adapter
                 viewPager.adapter = adapter
                 viewPager.offscreenPageLimit = groups.size
@@ -213,21 +208,14 @@ class Settings(
                 return f?.getViewState()?.expandedIds ?: ArrayList()
             }
 
-            override fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+            override fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
                 adapter.onDependencyChanged(dependency, payload)
             }
 
-            override fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
+            override fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
                 val f = adapter.getFragmentAt(viewPager.currentItem)
                 f?.let {
-                    f.onSettingChanged(setting, customItem, oldValue, newValue)
-                }
-            }
-
-            override fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-                val f = adapter.getFragmentAt(viewPager.currentItem)
-                f?.let {
-                    f.onCustomEnabledChanged(setting, customItem, oldValue, newValue)
+                    f.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
                 }
             }
         }
@@ -240,9 +228,9 @@ class Settings(
 
             private lateinit var adapter: SettingsFragmentAdapter2
 
-            fun init(settings: Settings, customItem: SettingsCustomObject, groups: List<SettingsGroup>, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup, state: SettingsState) {
+            fun init(settings: Settings, settingsData: ISettingsData, groups: List<SettingsGroup>, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup, state: SettingsState) {
                 // 1) create adapter
-                adapter = SettingsFragmentAdapter2(viewContext.fragmentManager, viewContext.lifeCycle, customItem, groups, dependencies, setup, state)
+                adapter = SettingsFragmentAdapter2(viewContext.fragmentManager, viewContext.lifeCycle, settingsData, groups, dependencies, setup, state)
                 // 2) set adapter
                 viewPager.adapter = adapter
                 viewPager.offscreenPageLimit = groups.size
@@ -271,21 +259,14 @@ class Settings(
                 return f?.getViewState()?.expandedIds ?: ArrayList()
             }
 
-            override fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+            override fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
                 adapter.onDependencyChanged(dependency, payload)
             }
 
-            override fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
+            override fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
                 val f = adapter.getFragmentAt(viewPager.currentItem)
                 f?.let {
-                    f.onSettingChanged(setting, customItem, oldValue, newValue)
-                }
-            }
-
-            override fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-                val f = adapter.getFragmentAt(viewPager.currentItem)
-                f?.let {
-                    f.onCustomEnabledChanged(setting, customItem, oldValue, newValue)
+                    f.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
                 }
             }
         }
@@ -296,21 +277,27 @@ class Settings(
         ) : Definition() {
 
             private lateinit var adapter: SettingsAdapter
-            private var decorator: SettingsViewsDecorator? = null
+            private var decorators: ArrayList<RecyclerView.ItemDecoration> = ArrayList()
 
-            fun init(settings: Settings, viewContext: ViewContext, customItem: SettingsCustomObject, items: List<ISetting<*>>, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup, state: SettingsState) {
+            fun init(settings: Settings, viewContext: ViewContext, settingsData: ISettingsData, items: List<ISetting<*>>, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup, state: SettingsState) {
                 // 1) create adapter
-                adapter = SettingsAdapter(viewContext.getDialogContext(setup), customItem, items, dependencies, setup, state)
+                adapter = SettingsAdapter(viewContext.getDialogContext(), settingsData, items, dependencies, setup, state)
                 // 2) set adapter + init rv
                 rv.layoutManager = LinearLayoutManager(rv.context, RecyclerView.VERTICAL, false)
                 adapter.bind(rv, emptyView)
                 // 3) add decorator
-                decorator = SettingsViewsDecorator(setup.style)
-                rv.addItemDecoration(decorator!!)
+                val decorator =setup.createSettingsViewsDecorator()
+                rv.addItemDecoration(decorator)
+                decorators.add(decorator)
+                if (setup.additionalListBottomSpace != 0) {
+                    val decorator2 = SettingsBottomSpaceDecorator(setup.additionalListBottomSpace)
+                    rv.addItemDecoration(decorator2)
+                    decorators.add(decorator2)
+                }
             }
 
             override fun destroy() {
-                decorator?.let { rv.removeItemDecoration(it) }
+                decorators.forEach { rv.removeItemDecoration(it) }
             }
 
             override fun updateFilter(text: String) {
@@ -321,16 +308,17 @@ class Settings(
                 return adapter.getExpandedIds()
             }
 
-            override fun onDependencyChanged(dependency: SettingsDependency, payload: SettingsPayload) {
+            override fun onDependencyChanged(dependency: SettingsDependency<*>, payload: SettingsPayload) {
                 adapter.onDependencyChanged(dependency, payload)
             }
 
-            override fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?) {
-                adapter.notifyItemChanged(setting, SettingsPayload.ValueChanged)
-            }
-
-            override fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean) {
-                adapter.notifyItemChanged(setting, SettingsPayload.IsCustomEnabledChanged)
+            override fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
+                val payload = when (changeType) {
+                    ChangeType.GlobalValue -> SettingsPayload.ValueChanged
+                    ChangeType.CustomValue -> SettingsPayload.ValueChanged
+                    ChangeType.CustomIsEnabled -> SettingsPayload.IsCustomEnabledChanged
+                }
+                adapter.notifyItemChanged(setting, payload)
             }
         }
     }

@@ -4,7 +4,7 @@ import android.widget.ImageView
 import com.michaelflisar.dialogs.interfaces.IParcelableTextImageProvider
 import com.michaelflisar.settings.core.interfaces.ISettingsListItem
 import kotlinx.android.parcel.IgnoredOnParcel
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class ListItem(

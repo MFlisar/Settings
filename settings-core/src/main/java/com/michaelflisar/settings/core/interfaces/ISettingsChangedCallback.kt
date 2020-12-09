@@ -1,8 +1,8 @@
 package com.michaelflisar.settings.core.interfaces
 
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
+import com.michaelflisar.settings.core.enums.ChangeType
 
+//typealias SettingsChangedCallback = (changeType: ChangeType, setting: ISetting<*>, settingsDataHolder: SettingsDataHolder, oldValue: Any?, newValue: Any?) -> Unit
 interface ISettingsChangedCallback {
-    fun onSettingChanged(setting: ISetting<*>, customItem: SettingsCustomObject, oldValue: Any?, newValue: Any?)
-    fun onCustomEnabledChanged(setting: ISetting<*>, customItem: SettingsCustomObject.Element, oldValue: Boolean, newValue: Boolean)
+    fun onSettingChanged(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?)
 }

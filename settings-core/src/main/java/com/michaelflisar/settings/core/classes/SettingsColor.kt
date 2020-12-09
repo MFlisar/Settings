@@ -5,7 +5,7 @@ import android.os.Parcelable
 import android.widget.TextView
 import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.SettingsUtils
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 sealed class SettingsColor : Parcelable {
 
@@ -21,3 +21,4 @@ sealed class SettingsColor : Parcelable {
         override fun getColor(context: Context): Int = SettingsUtils.attrColor(context, color)
     }
 }
+

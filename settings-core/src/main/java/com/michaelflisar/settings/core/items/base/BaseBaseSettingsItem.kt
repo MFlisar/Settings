@@ -1,30 +1,32 @@
 package com.michaelflisar.settings.core.items.base
 
 import android.content.res.ColorStateList
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Switch
 import android.widget.TextView
+import androidx.constraintlayout.widget.Barrier
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.github.zagum.switchicon.SwitchIconView
 import com.michaelflisar.settings.core.*
 import com.michaelflisar.settings.core.R
-import com.michaelflisar.settings.core.classes.*
+import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
+import com.michaelflisar.settings.core.classes.SettingsMetaData
+import com.michaelflisar.settings.core.classes.SettingsStyle
 import com.michaelflisar.settings.core.databinding.SettingsItemBaseBinding
-import com.michaelflisar.settings.core.databinding.SettingsItemBoolBinding
 import com.michaelflisar.settings.core.enums.CustomLayoutStyle
 import com.michaelflisar.settings.core.enums.HelpStyle
+import com.michaelflisar.settings.core.enums.SupportType
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
 import com.michaelflisar.settings.core.internal.SettingsPayload
 import com.michaelflisar.settings.core.internal.Test
-import com.michaelflisar.settings.core.items.SettingsItemBool
-import com.michaelflisar.settings.core.internal.recyclerview.SettingsViewsDecorator
+import com.michaelflisar.settings.core.decorator.CardGroupDecorator
 import com.michaelflisar.settings.core.settings.base.BaseSetting
 import com.michaelflisar.settings.core.settings.base.BaseSettingsGroup
 import com.mikepenz.fastadapter.*
@@ -32,7 +34,6 @@ import com.mikepenz.fastadapter.binding.AbstractBindingItem
 import com.mikepenz.fastadapter.binding.BindingViewHolder
 import com.mikepenz.fastadapter.listeners.ClickEventHook
 import com.mikepenz.fastadapter.listeners.CustomEventHook
-import kotlinx.android.synthetic.main.settings_item_base.view.*
 
 
 abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Setting : ISetting<ValueType>>(
@@ -46,7 +47,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
     abstract override var index: Int
     abstract override val item: Setting
     abstract override val itemData: SettingsMetaData
-    abstract val settingsCustomItem: SettingsCustomObject
+    abstract val settingsData: ISettingsData
     abstract protected val supportsBottomBinding: Boolean
 
     enum class NoStartIconMode {
@@ -78,12 +79,15 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         // Top Binding
         val subBindingTop = createSubBinding(inflater, parent, true)
         baseBinding.root.setTag(R.id.tag_settings_subview_top, subBindingTop)
+        subBindingTop.root.id = R.id.vState
         replaceView(baseBinding.vState, subBindingTop)
+        updateBarrierBottom(baseBinding.barrierBottom, subBindingTop)
 
         // Bottom Binding
         if (supportsBottomBinding) {
             val subBindingBottom = createSubBinding(inflater, parent, false)
             baseBinding.root.setTag(R.id.tag_settings_subview_bottom, subBindingBottom)
+            baseBinding.root.id = R.id.vStateBottom
             replaceView(baseBinding.vStateBottom, subBindingBottom)
         } else {
             // we can already hide all bottom views in this case
@@ -101,48 +105,59 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
     final override fun bindView(binding: SettingsItemBaseBinding, payloads: List<Any>) {
 
-        val isGlobal = settingsCustomItem is SettingsCustomObject.None
-        val isBottomBindingVisible = supportsBottomBinding && !isGlobal && setup.customLayout != CustomLayoutStyle.Compact
-        val isCheckableIcon = supportsBottomBinding && !isGlobal
+        val containsUnknownPayload = payloads.count { it !is SettingsPayload } > 0
+
+        if (payloads.isEmpty() || payloads.contains(SettingsPayload.DependencyChanged)) {
+            var viewIsEnabled = true
+            itemData.dependencies.forEach {
+                viewIsEnabled = viewIsEnabled && it.isChildEnabled(settingsData)
+            }
+            binding.cardView.setViewState(viewIsEnabled)
+            if (!containsUnknownPayload && payloads.size == 1)
+                return
+        }
+        val onlyValueChanged = !containsUnknownPayload && (payloads.contains(SettingsPayload.IsCustomEnabledChanged) || payloads.contains(SettingsPayload.ValueChanged))
+
+        val itemSupportsBottomBinding = supportsBottomBinding && item.supportType != SupportType.CustomOnly
+        val isGlobal = settingsData.isGlobal
+        val isBottomBindingVisible = itemSupportsBottomBinding && !isGlobal && setup.customLayout != CustomLayoutStyle.Compact
+        val isCheckableIcon = itemSupportsBottomBinding && !isGlobal
 
         // -----------
         // 1 - Base Binding
         // -----------
 
-        // 1.1 - prepare base binding data
-        val text = item.getDisplayLabel(setup)
-        val subText = item.info?.get(SettingsManager.context)
-        val subTextVisibility = if (subText?.isNotEmpty() == true) View.VISIBLE else View.GONE
-        val startIconWidth = if (item.icon != null) SettingsUtils.dimen(binding.root.context, R.dimen.settings_left_icon_width) else (if (noStartIconMode == NoStartIconMode.Gone) 0 else SettingsUtils.dimen(binding.root.context, R.dimen.settings_left_icon_width))
-        val paddingForViewsRightOfIcon = if (item.icon != null || isBottomBindingVisible) SettingsUtils.dimen(binding.root.context, R.dimen.settings_icon_margin_right) else (if (noStartIconMode == NoStartIconMode.Gone) 0 else SettingsUtils.dimen(binding.root.context, R.dimen.settings_icon_margin_right))
-        val supportsEndIcon = (item as? BaseSetting<*, *, *>)?.editable ?: true
-        var viewIsEnabled = true
-        itemData.dependencies.forEach {
-            viewIsEnabled = viewIsEnabled && it.getParent().readRealValue(settingsCustomItem)
+        if (!onlyValueChanged) {
+            // 1.1 - prepare base binding data
+            val text = item.getDisplayLabel(setup)
+            val subText = item.info?.get(SettingsManager.context)
+            val subTextVisibility = if (subText?.isNotEmpty() == true) View.VISIBLE else View.GONE
+            val startIconWidth = if (item.icon != null) SettingsUtils.dimen(binding.root.context, R.dimen.settings_left_icon_width) else (if (noStartIconMode == NoStartIconMode.Gone) 0 else SettingsUtils.dimen(binding.root.context, R.dimen.settings_left_icon_width))
+            val paddingForViewsRightOfIcon = if (item.icon != null || isBottomBindingVisible) SettingsUtils.dimen(binding.root.context, R.dimen.settings_icon_margin_right) else (if (noStartIconMode == NoStartIconMode.Gone) 0 else SettingsUtils.dimen(binding.root.context, R.dimen.settings_icon_margin_right))
+            val supportsEndIcon = (item as? BaseSetting<*, *, *>)?.editable ?: true
+
+            // 1.2 - update base binding views
+            binding.ivIcon.layoutParams.width = startIconWidth
+            binding.sivIcon.layoutParams.width = startIconWidth
+            setMarginLeft(binding.tvTitle, paddingForViewsRightOfIcon)
+            setMarginLeft(binding.tvSubTitle, paddingForViewsRightOfIcon)
+            setMarginLeft(binding.tvBottomTitle, paddingForViewsRightOfIcon)
+            loadIcon(binding)
+            loadSwitchIcon(binding)
+            binding.tvTitle.text = setup.filter.highlight(true, text, filter, setup)
+            binding.tvSubTitle.text = subText?.let { setup.filter.highlight(false, it, filter, setup) }
+            binding.tvSubTitle.visibility = subTextVisibility
+            applyEndIcon(binding.ivEndIcon, endIconType, supportsEndIcon)
+
+            binding.root.isClickable = item.clickable
+            binding.ivHelp.visibility = if (item.help != null && setup.helpStyle is HelpStyle.Icon) View.VISIBLE else View.GONE
+            (item.help != null && setup.helpStyle.mode == HelpStyle.Mode.Click).let {
+                binding.ivHelp.isClickable = it
+                binding.ivHelp.setSelectableBackground(true, it)
+            }
+
+            updateIconAndSwitchVisibility(binding, isCheckableIcon, item.icon != null)
         }
-
-        // 1.2 - update base binding views
-        binding.cardView.setViewState(viewIsEnabled)
-        binding.ivIcon.layoutParams.width = startIconWidth
-        binding.sivIcon.layoutParams.width = startIconWidth
-        setMarginLeft(binding.tvTitle, paddingForViewsRightOfIcon)
-        setMarginLeft(binding.tvSubTitle, paddingForViewsRightOfIcon)
-        setMarginLeft(binding.tvBottomTitle, paddingForViewsRightOfIcon)
-        loadIcon(binding)
-        loadSwitchIcon(binding)
-        binding.tvTitle.text = setup.filter.highlight(true, text, filter, setup)
-        binding.tvSubTitle.text = subText?.let { setup.filter.highlight(false, it, filter, setup) }
-        binding.tvSubTitle.visibility = subTextVisibility
-        applyEndIcon(binding.ivEndIcon, endIconType, supportsEndIcon)
-
-        binding.root.isClickable = item.clickable
-        binding.root.ivHelp.visibility = if (item.help != null && setup.helpStyle is HelpStyle.Icon) View.VISIBLE else View.GONE
-        (item.help != null && setup.helpStyle.mode == HelpStyle.Mode.Click).let {
-            binding.root.ivHelp.isClickable = it
-            binding.root.ivHelp.setSelectableBackground(true, it)
-        }
-
-        updateIconAndSwitchVisibility(binding, isCheckableIcon, item.icon != null)
 
         // -----------
         // 2 - Top Binding
@@ -159,26 +174,31 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         // -----------
 
         val subBindingBottom = if (supportsBottomBinding) binding.root.getTag(R.id.tag_settings_subview_bottom) as SubViewBinding else null
-        if (isBottomBindingVisible) {
 
-            // 3.1 - prepare bottom binding data
-            val defaultSettingsLabel = binding.root.context.getString(setup.defaultSettingsLabel)
+        if (!onlyValueChanged) {
+            if (isBottomBindingVisible) {
 
-            // 3.2 - update bottom binding views
-            updateBottomViewsVisibility(binding, subBindingBottom, View.VISIBLE)
-            binding.tvBottomTitle.text = defaultSettingsLabel
+                // 3.1 - prepare bottom binding data
+                val defaultSettingsLabel = binding.root.context.getString(setup.defaultSettingsLabel)
 
-        } else {
-            updateBottomViewsVisibility(binding, subBindingBottom, View.GONE)
+                // 3.2 - update bottom binding views
+                updateBottomViewsVisibility(binding, subBindingBottom, View.VISIBLE)
+                binding.tvBottomTitle.text = defaultSettingsLabel
+
+            } else {
+                updateBottomViewsVisibility(binding, subBindingBottom, View.GONE)
+            }
+            onBindViewsFinished(binding, subBindingTop, subBindingBottom, payloads)
         }
-
-        onBindViewsFinished(binding, subBindingTop, subBindingBottom, payloads)
 
         // -----------
         // 4 - Sub Bindings
         // -----------
 
-        bindSubViews(subBindingTop, subBindingBottom, payloads)
+        bindSubViewTop(subBindingTop, payloads)
+        if (isBottomBindingVisible) {
+            bindSubViewBottom(subBindingBottom!!, payloads)
+        }
 
         // -----------
         // 5 - update enabled/disabled states
@@ -197,7 +217,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
     }
 
     abstract fun createSubBinding(inflater: LayoutInflater, parent: ViewGroup?, topBinding: Boolean): SubViewBinding
-    abstract fun bindSubViews(subBindingTop: SubViewBinding, subBindingBottom: SubViewBinding?, payloads: List<Any>)
+    abstract fun bindSubViewTop(subBindingTop: SubViewBinding, payloads: List<Any>)
+    abstract fun bindSubViewBottom(subBindingBottom: SubViewBinding, payloads: List<Any>)
 
     override fun addSubItems(items: List<ISettingsItem<*, *, *>>) {
         _subItems.addAll(items)
@@ -209,10 +230,10 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
     // ----------
 
     protected fun applyStyle(baseBinding: SettingsItemBaseBinding, isGroup: Boolean, isTopLevel: Boolean) {
-        if (Test.APPLY_CARD_STYLE_IN_DECORATOR) {
+        if (CardGroupDecorator.APPLY_CARD_STYLE_IN_DECORATOR) {
             return
         }
-        SettingsViewsDecorator.applyStyle(setup.style, baseBinding.cardView, isTopLevel)
+        CardGroupDecorator.applyStyle(setup.style.topLevelStyle, setup.style.subLevelStyle, setup.style.elevationInDp, baseBinding.cardView, baseBinding.constraintLayout, isTopLevel)
     }
 
     protected fun applyTinting(baseBinding: SettingsItemBaseBinding, style: SettingsStyle.BaseStyle, customForegroundColor: Int? = null, textViews: List<TextView?> = emptyList(), lighteningFactorPerLevel: Float? = null) {
@@ -221,7 +242,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         val tintFgColor = style.textColor.getColor(baseBinding.root.context)
 
         val level = getLevel()
-        val bgColor = lighteningFactorPerLevel.takeIf { it != 0f }?.let { SettingsUtils.lightenColor(tintBgColor, it * level) } ?: tintBgColor
+        val bgColor = lighteningFactorPerLevel.takeIf { it != 0f }?.let { SettingsUtils.lightenColor(tintBgColor, it * level) }
+                ?: tintBgColor
         val fgColor = customForegroundColor ?: tintFgColor
 
         baseBinding.cardView.setCardBackgroundColor(ColorStateList.valueOf(bgColor))
@@ -243,7 +265,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             imageView.rotation = icon.rotation
             imageView.visibility = View.VISIBLE
         } else {
-            imageView.visibility = View.INVISIBLE
+            imageView.visibility = View.GONE
         }
     }
 
@@ -252,6 +274,13 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         val parent = viewToReplace.parent as ConstraintLayout
         parent.removeView(viewToReplace)
         parent.addView(bindingToReplaceWith.root, lp)
+    }
+
+    private fun updateBarrierBottom(barrierBottom: Barrier, subBindingTop: SubViewBinding) {
+        val referenceIds = barrierBottom.referencedIds.toMutableList()
+        referenceIds.add(subBindingTop.root.id)
+        barrierBottom.referencedIds = referenceIds.toIntArray()
+        barrierBottom.invalidate()
     }
 
     private fun setMarginLeft(view: View, px: Int) {
@@ -265,15 +294,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
     override fun validForFilter(text: String, checkParents: Boolean, checkSubItems: Boolean): Boolean {
 
-        var valid = false
-
-        val filter = setup.filter
-
-        if (text.isEmpty())
-            valid = true
-
-        if (!valid && setup.filter.isValid(text, item))
-            valid = true
+        var valid = setup.filter.isValid(text, item)
 
         // if any parent fits the filter we keep this item as well
         if (!valid && checkParents && parentSetting != null)
@@ -288,9 +309,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             }
         }
 
-        // TODO: sub items need to be filtered inside their parents correctly as well!!!
-
-        Log.d("TEST", "Item: ${item.label.get(SettingsManager.context)} | filter: $text | checkSubItems: $checkSubItems | subItems: ${subItems.size} | valid: $valid")
+        //Log.d("TEST", "Item: ${item.label.get(SettingsManager.context)} | filter: $text | checkSubItems: $checkSubItems | subItems: ${subItems.size} | valid: $valid")
 
         return valid
     }
@@ -326,10 +345,11 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         //binding.barrierBottom.visibility = visibility
         binding.vBottomSeparator.visibility = visibility
         binding.tvBottomTitle.visibility = visibility
-        if (subBindingBottom == null)
+        if (subBindingBottom == null) {
             binding.vStateBottom.visibility = visibility
-        else
+        } else {
             subBindingBottom.root.visibility = visibility
+        }
     }
 
     protected open fun loadIcon(binding: SettingsItemBaseBinding) {
@@ -432,7 +452,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             }
         }
 
-        internal val EVENT_HOOK_IS_CUSTOM_ENABLED = object : CustomEventHook<SettingsItemBool>() {
+        internal val EVENT_HOOK_IS_CUSTOM_ENABLED = object : CustomEventHook<ISettingsItem<*, *, *>>() {
 
             override fun onBindMany(viewHolder: RecyclerView.ViewHolder): List<View>? {
                 val baseBinding = (viewHolder as? BindingViewHolder<*>)?.binding as? SettingsItemBaseBinding
@@ -462,15 +482,15 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             }
 
             private fun onCheckChange(vh: RecyclerView.ViewHolder, switchStateFunction: ((value: Boolean) -> Unit)?, getValueFunction: () -> Boolean) {
-                val item = FastAdapter.getHolderAdapterItem<BaseSettingsItem<Boolean, SettingsItemBoolBinding, BaseSetting<Boolean, *, *>>>(vh)
+                val item = FastAdapter.getHolderAdapterItem<BaseSettingsItem<Boolean, *, BaseSetting<Boolean, *, *>>>(vh)
                 item?.let {
-                    val customItem = item.settingsCustomItem
+                    val settingsData = item.settingsData
                     val data = item.item
 
-                    if (customItem is SettingsCustomObject.Element) {
+                    if (!settingsData.isGlobal) {
                         switchStateFunction?.invoke(true)
                         val newValue = getValueFunction()
-                        data.writeSettingEnabled(customItem, newValue)
+                        data.writeIsEnabled(settingsData as ISettingsData.Element, newValue)
 
                         // we need to update this items UI (enable/disable views, ...)
                         val adapter = FastAdapter.getFromHolderTag<IItem<*>>(vh)

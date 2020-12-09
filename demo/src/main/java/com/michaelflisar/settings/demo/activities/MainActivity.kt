@@ -2,10 +2,16 @@ package com.michaelflisar.settings.demo.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import com.michaelflisar.settings.core.SettingsManager
+import com.michaelflisar.settings.demo.advanced.AdvancedStorageManager
 import com.michaelflisar.settings.demo.databinding.ActivityMainBinding
+import com.michaelflisar.settings.demo.databinding.ViewMainButtonBinding
+import com.michaelflisar.settings.demo.simple.SettingsDefs
+import com.michaelflisar.settings.storage.datastorepreferences.DataStorePrefSettings
 
 class MainActivity : AppCompatActivity() {
 
@@ -17,23 +23,45 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        listOf(
-                Demo("Simple demo with predefined view", Demo1Activity::class.java),
-                Demo("Simple demo with custom view", Demo2Activity::class.java),
+        val layoutInflater = LayoutInflater.from(this)
+        val demos = listOf(
+                Demo("Simple demo", "Demo with predefined view", SimpleDemo1Activity::class.java, false),
+                Demo("Simple demo", "Demo with custom view", SimpleDemo2Activity::class.java, false),
+                Demo("Advanced demo", "Desktop with folders (and nested folders) and custom colors per item (with room database for custom items and preferences for global settings)", AdvancedDemo1Activity::class.java, true),
         )
-                .forEach { demo ->
-                    val bt = Button(this).apply {
-                        text = demo.label
-                    }
-                    bt.setOnClickListener {
-                        startActivity(Intent(this, demo.clazz))
-                    }
-                    binding.llList.addView(bt, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-                }
+        demos.forEachIndexed { index, demo ->
+            val itemBinding = ViewMainButtonBinding.inflate(layoutInflater)
+            itemBinding.tvTitle.text = demo.label
+            itemBinding.tvInfo.text = demo.description
+            itemBinding.vSeparator.visibility = if (index == demos.size - 1) View.GONE else View.VISIBLE
+            itemBinding.btStart.setOnClickListener {
+                demo.start(this)
+            }
+            binding.llList.addView(itemBinding.root, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        }
     }
 
     class Demo(
             val label: String,
-            val clazz: Class<*>
-    )
+            val description: String,
+            val clazz: Class<*>,
+            val isAdvanced: Boolean
+    ) {
+        fun start(activity: AppCompatActivity) {
+            // set up settings manager with the correct storage manger
+            SettingsManager.reset()
+            if (isAdvanced) {
+                SettingsManager.init(activity, AdvancedStorageManager)
+            } else {
+                // 1) our StorageManager is the DataStorePrefsSetting - so we create one here...
+                val storageManager = DataStorePrefSettings(activity, "demo_data_store")
+                // 2) ... and then we initialise the SettingsManager with the StorageManager it should use
+                SettingsManager.init(activity, storageManager)
+                // 3) init or update some data
+                SettingsDefs.onAppStart()
+            }
+
+            activity.startActivity(Intent(activity, clazz))
+        }
+    }
 }

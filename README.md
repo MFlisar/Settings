@@ -38,18 +38,19 @@ dependencies {
 	implementation 'com.github.MFlisar:Settings:<LAST VERSION>'
 	
 	// include parts
-	implementation 'com.github.MFlisar:Settings:settings-core:<LAST VERSION>'
-	implementation 'com.github.MFlisar:Settings:settings-view:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings.settings-core:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings.settings-view:<LAST VERSION>'
 	
-	implementation 'com.github.MFlisar:Settings:settings-storage-sharedpreferences:<LAST VERSION>'
-	implementation 'com.github.MFlisar:Settings:settings-storage-datastorepreferences:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings.settings-storage-sharedpreferences:<LAST VERSION>'
+	implementation 'com.github.MFlisar:Settings.settings-storage-datastorepreferences:<LAST VERSION>'
 	
-	implementation 'com.github.MFlisar:Settings:settings-color:<LAST VERSION>'	
+	implementation 'com.github.MFlisar:Settings.settings-color:<LAST VERSION>'	
 }
 ```
 
-### Example
+### How to start
 
-TODO
+TODO: Explanation simple demo
+TODO: Explanation advanced demo ("real life" demo)
 
 For a full example, check out the demo app

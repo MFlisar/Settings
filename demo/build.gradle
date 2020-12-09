@@ -19,13 +19,6 @@ android {
         multiDexEnabled true
     }
 
-    signingConfigs {
-        debug {
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
-        }
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -61,7 +54,10 @@ dependencies {
     // AndroidX
     // ------------------------
 
-    implementation "androidx.core:core-ktx:${androidx.corektx}"
+    implementation "androidx.core:core-ktx:${androidx.core}"
+
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:${androidx.lifecycle}"
+
     implementation "androidx.appcompat:appcompat:${androidx.appcompat}"
     implementation "androidx.recyclerview:recyclerview:${androidx.recyclerview}"
     implementation "androidx.cardview:cardview:${androidx.cardview}"
@@ -78,26 +74,28 @@ dependencies {
     // implementation project(':settings-color')
 
     // simply add the desired storage implementation + view module if needed
-    implementation project(':settings-storage-datastorepreferences')
-    implementation project(':settings-view')
+    implementation project(':settings.storage-datastorepreferences')
+    implementation project(':settings.view')
 
-    // ------------------------
-    // Preferences
-    // ------------------------
-
-    //implementation "com.chibatching.kotpref:kotpref:${versions.kotpref}"
-    //implementation "com.chibatching.kotpref:enum-support:${versions.kotpref}"
+    // used for the advanced example only
+    implementation project(':settings.utils')
+    implementation project(':settings.image')
 
     // ------------------------
     // Others
     // ------------------------
 
-//    implementation"com.mikepenz:fastadapter:${versions.fastAdapter}"
-//    implementation "com.mikepenz:fastadapter-extensions-expandable:${versions.fastAdapter}"
-
-//    implementation 'com.shawnlin:number-picker:2.4.6'
-//    implementation 'com.github.nguyenhoanglam:ImagePicker:1.2.1'
-
     implementation 'com.evernote:android-state:1.4.1'
     kapt 'com.evernote:android-state-processor:1.4.1'
+
+    // ----------------
+    // Advanced demo
+    // ----------------
+
+    implementation "com.chibatching.kotpref:kotpref:{versions.kotpref}"
+
+    implementation "androidx.room:room-runtime:${androidx.room}"
+    kapt "androidx.room:room-compiler:${androidx.room}"
+    implementation "androidx.room:room-ktx:${androidx.room}"
+
 }

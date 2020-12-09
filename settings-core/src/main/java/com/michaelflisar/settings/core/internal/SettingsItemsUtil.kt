@@ -1,19 +1,20 @@
 package com.michaelflisar.settings.core.internal
 
-import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
-import com.michaelflisar.settings.core.classes.SettingsCustomObject
 import com.michaelflisar.settings.core.classes.SettingsDependency
-import com.michaelflisar.settings.core.settings.SettingsGroup
+import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
 import com.michaelflisar.settings.core.classes.SettingsMetaData
 import com.michaelflisar.settings.core.enums.SupportType
 import com.michaelflisar.settings.core.interfaces.ISetting
+import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
+import com.michaelflisar.settings.core.settings.SettingsGroup
+import com.michaelflisar.text.asText
 
 internal object SettingsItemsUtil {
 
-    fun getTopLevelGroups(customItem: SettingsCustomObject, settings: List<ISetting<*>>, addGroupForItemsWithoutGroups: Boolean, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup): List<SettingsGroup> {
+    fun getTopLevelGroups(settingsData: ISettingsData, settings: List<ISetting<*>>, addGroupForItemsWithoutGroups: Boolean, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup): List<SettingsGroup> {
 
-        val items = getItems(customItem, settings, dependencies, setup, null)
+        val items = getItems(settingsData, settings, dependencies, setup, null)
 
         val groups = ArrayList<SettingsGroup>()
         groups.addAll(
@@ -27,7 +28,7 @@ internal object SettingsItemsUtil {
             if (itemsWithoutGroups.isNotEmpty()) {
                 val noGroupGroup = SettingsGroup(
                         -1L,
-                        setup.noGroupTitle,
+                        setup.noGroupTitle.asText(),
                         null,
                         null,
                         null
@@ -40,22 +41,22 @@ internal object SettingsItemsUtil {
         return groups
     }
 
-    fun getItems(customItem: SettingsCustomObject, settings: List<ISetting<*>>, dependencies: List<SettingsDependency>, setup: SettingsDisplaySetup, parent: ISettingsItem<*, *, *>?): List<ISettingsItem<*, *, *>> {
+    fun getItems(settingsData: ISettingsData, settings: List<ISetting<*>>, dependencies: List<SettingsDependency<*>>, setup: SettingsDisplaySetup, parent: ISettingsItem<*, *, *>?): List<ISettingsItem<*, *, *>> {
         val items = ArrayList<ISettingsItem<*, *, *>>()
 
         var index = 0
         for (setting in settings) {
             // SettingsItemHeader(null, index++, setting, setup)
-            val item = setting.createSettingsItem(parent, index++, getMetaDataForItem(setting, dependencies), customItem, setup)
+            val item = setting.createSettingsItem(parent, index++, getMetaDataForItem(setting, dependencies), settingsData, setup)
             if (setting is SettingsGroup) {
-                item.addSubItems(getItems(customItem, setting.getItems(), dependencies, setup, item))
+                item.addSubItems(getItems(settingsData, setting.getItems(), dependencies, setup, item))
             }
             items.add(item)
         }
 
         // 1) filter out invalid settings based on setup
         filterItems(items) {
-            isSettingsTypeValid(customItem, it)
+            isSettingsTypeValid(settingsData, it)
         }
 
         // 2) filter out empty groups
@@ -72,7 +73,7 @@ internal object SettingsItemsUtil {
     // private helper functions
     // ------------------------
 
-    private fun getMetaDataForItem(setting: ISetting<*>, dependencies: List<SettingsDependency>): SettingsMetaData {
+    private fun getMetaDataForItem(setting: ISetting<*>, dependencies: List<SettingsDependency<*>>): SettingsMetaData {
         return SettingsMetaData(
                 dependencies.filter { it.childThatDependsOnParent == setting }
         )
@@ -91,14 +92,18 @@ internal object SettingsItemsUtil {
         }
     }
 
-    private fun isSettingsTypeValid(customItem: SettingsCustomObject, setting: ISettingsItem<*, *, *>): Boolean {
-        return isSettingsTypeValid(customItem, setting.item)
+    private fun isSettingsTypeValid(settingsData: ISettingsData, setting: ISettingsItem<*, *, *>): Boolean {
+        return isSettingsTypeValid(settingsData, setting.item)
     }
 
-    private fun isSettingsTypeValid(customItem: SettingsCustomObject, setting: ISetting<*>): Boolean {
-        return when (customItem) {
-            SettingsCustomObject.None -> setting.supportType == SupportType.All || setting.supportType == SupportType.GlobalOnly
-            is SettingsCustomObject.Element -> setting.supportType == SupportType.All || setting.supportType == SupportType.CustomOnly
+    private fun isSettingsTypeValid(settingsData: ISettingsData, setting: ISetting<*>): Boolean {
+        if (!setting.valid) {
+            return false
+        }
+        return if (settingsData.isGlobal) {
+            setting.supportType == SupportType.All || setting.supportType == SupportType.GlobalOnly
+        } else {
+            setting.supportType == SupportType.All || setting.supportType == SupportType.CustomOnly
         }
     }
 }

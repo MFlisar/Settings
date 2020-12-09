@@ -6,10 +6,10 @@ import com.michaelflisar.settings.core.R
 import com.michaelflisar.settings.core.get
 import com.michaelflisar.settings.core.interfaces.ISettingsFeedbackHandler
 import com.michaelflisar.settings.core.interfaces.ISettingsItem
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 @Parcelize
-class ToastFeedbackHandler(
+open class ToastFeedbackHandler(
         val errorTextCantChangeDisabledSetting: Int = R.string.settings_cant_edit_an_disabled_item,
         val length: Int = Toast.LENGTH_SHORT
 ) : ISettingsFeedbackHandler {

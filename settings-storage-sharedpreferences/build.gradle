@@ -43,6 +43,6 @@ dependencies {
     // Library
     // ------------------------
 
-    api project(':settings-core')
-    api project(':settings-color')
+    api project(':settings.core')
+    api project(':settings.color')
 }
