@@ -5,14 +5,14 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/Settings.iml" filepath="$PROJECT_DIR$/.idea/Settings.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo/Settings.demo.iml" filepath="$PROJECT_DIR$/.idea/modules/demo/Settings.demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings/Settings.settings.iml" filepath="$PROJECT_DIR$/.idea/modules/settings/Settings.settings.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-color/com.github.MFlisar.Settings.settings.color.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-color/com.github.MFlisar.Settings.settings.color.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-core/com.github.MFlisar.Settings.settings.core.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-core/com.github.MFlisar.Settings.settings.core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-image/com.github.MFlisar.Settings.settings.image.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-image/com.github.MFlisar.Settings.settings.image.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/com.github.MFlisar.Settings.settings.storage-datastorepreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/com.github.MFlisar.Settings.settings.storage-datastorepreferences.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/com.github.MFlisar.Settings.settings.storage-sharedpreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/com.github.MFlisar.Settings.settings.storage-sharedpreferences.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-utils/com.github.MFlisar.Settings.settings.utils.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-utils/com.github.MFlisar.Settings.settings.utils.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-view/com.github.MFlisar.Settings.settings.view.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-view/com.github.MFlisar.Settings.settings.view.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage/settings-storage.Settings.settings.storage.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage/settings-storage.Settings.settings.storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-color/Settings.settings.color.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-color/Settings.settings.color.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-core/Settings.settings.core.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-core/Settings.settings.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-image/Settings.settings.image.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-image/Settings.settings.image.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage/Settings.settings.storage.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage/Settings.settings.storage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/Settings.settings.storage-datastorepreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-datastorepreferences/Settings.settings.storage-datastorepreferences.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/Settings.settings.storage-sharedpreferences.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-storage-sharedpreferences/Settings.settings.storage-sharedpreferences.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-utils/Settings.settings.utils.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-utils/Settings.settings.utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/settings-view/Settings.settings.view.iml" filepath="$PROJECT_DIR$/.idea/modules/settings-view/Settings.settings.view.iml" />
     </modules>
   </component>
 </project>
