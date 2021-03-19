@@ -16,6 +16,7 @@ import com.michaelflisar.settings.core.enums.ChangeType
 import com.michaelflisar.settings.core.interfaces.ISetting
 import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.internal.SettingsPayload
+import com.michaelflisar.settings.core.internal.Test
 import com.michaelflisar.settings.core.settings.SettingsGroup
 
 internal class SettingsFragment : Fragment() {
@@ -50,7 +51,6 @@ internal class SettingsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments!!.let {
             settingsData = it.getParcelable("settingsData")!!
             if (SettingsManager.settingsProvider == null)
@@ -61,7 +61,6 @@ internal class SettingsFragment : Fragment() {
             setup = it.getParcelable("setup")!!
             state = it.getParcelable("state")!!
         }
-
         savedInstanceState?.let {
             it.getParcelable<SettingsState>("state")?.let {
                 state = it
@@ -73,9 +72,6 @@ internal class SettingsFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-//        Log.d("SettingsFragment", "onCreateView1: $savedInstanceState")
-
         binding = SettingsFragmentSettingsBinding.inflate(inflater)
         setup.noDataFoundIcon?.takeIf { it > 0 }?.let {
             binding!!.vEmpty.ivEmpty.setImageResource(it)
@@ -84,14 +80,18 @@ internal class SettingsFragment : Fragment() {
             binding!!.vEmpty.tvEmpty.setText(it)
         }
         // bind settings to recyclerview
+        val start = Test.measureTimeStart()
         settings.bind(Settings.ViewContext.Fragment(this), state, binding!!.rv, binding!!.vEmpty.root)
+        Test.measureTimeStop(start, "settings.bind")
         if (state.filter.isNotEmpty()) {
             updateFilter(state.filter)
         }
-
-//        Log.d("SettingsFragment", "onCreateView2: $savedInstanceState")
-
         return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        settings.unbind()
+        super.onDestroyView()
     }
 
     fun updateFilter(text: String) {
@@ -117,7 +117,6 @@ internal class SettingsFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         val state = settings.getViewState()
         outState.putParcelable("state", state)
-//        Log.d("SettingsFragment", "state saved: $state")
         super.onSaveInstanceState(outState)
     }
 

@@ -1,5 +1,6 @@
 package com.michaelflisar.settings.core
 
+import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
@@ -17,6 +18,7 @@ import com.michaelflisar.settings.core.interfaces.ISettingsChangedCallback
 import com.michaelflisar.settings.core.interfaces.ISettingsData
 import com.michaelflisar.settings.core.internal.SettingsItemsUtil
 import com.michaelflisar.settings.core.internal.SettingsPayload
+import com.michaelflisar.settings.core.internal.Test
 import com.michaelflisar.settings.core.internal.pager.SettingsFragmentAdapter
 import com.michaelflisar.settings.core.internal.pager.SettingsFragmentAdapter2
 import com.michaelflisar.settings.core.internal.recyclerview.SettingsAdapter
@@ -62,8 +64,10 @@ class Settings(
 
     fun bind(viewContext: ViewContext, state: SettingsState, tabLayout: TabLayout, viewPager: ViewPager2) {
         filter = state.filter
+        val start = Test.measureTimeStart()
         val def = Definition.PagerDefinitons2(viewContext, tabLayout, viewPager)
         def.init(this, settingsData, SettingsItemsUtil.getTopLevelGroups(settingsData, definitions.settings, true, definitions.dependencies, setup), definitions.dependencies, setup, state)
+        Test.measureTimeStop(start, "settings.bind - init VP")
         definition = def
         bound = Bound.Pager2
         SettingsManager.registerCallback(this)
@@ -71,8 +75,10 @@ class Settings(
 
     fun bind(viewContext: ViewContext, state: SettingsState, recyclerView: RecyclerView, emptyView: View?) {
         filter = state.filter
+        val start = Test.measureTimeStart()
         val def = Definition.ListDefinitions(recyclerView, emptyView)
         def.init(this, viewContext, settingsData, definitions.settings, definitions.dependencies, setup, state)
+        Test.measureTimeStop(start, "settings.bind - init LIST")
         definition = def
         bound = Bound.List
         SettingsManager.registerCallback(this)
@@ -233,9 +239,9 @@ class Settings(
                 adapter = SettingsFragmentAdapter2(viewContext.fragmentManager, viewContext.lifeCycle, settingsData, groups, dependencies, setup, state)
                 // 2) set adapter
                 viewPager.adapter = adapter
-                viewPager.offscreenPageLimit = groups.size
+                //viewPager.offscreenPageLimit = groups.size
                 // 3) bind tabs to viewpager
-                TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                TabLayoutMediator(tabLayout, viewPager, true, false) { tab, position ->
                     tab.text = adapter.getPageTitle(position)
                 }.attach()
                 // 4) bind icons to viewpager
@@ -286,7 +292,7 @@ class Settings(
                 rv.layoutManager = LinearLayoutManager(rv.context, RecyclerView.VERTICAL, false)
                 adapter.bind(rv, emptyView)
                 // 3) add decorator
-                val decorator =setup.createSettingsViewsDecorator()
+                val decorator = setup.createSettingsViewsDecorator()
                 rv.addItemDecoration(decorator)
                 decorators.add(decorator)
                 if (setup.additionalListBottomSpace != 0) {
@@ -298,6 +304,7 @@ class Settings(
 
             override fun destroy() {
                 decorators.forEach { rv.removeItemDecoration(it) }
+                adapter.onDestroy()
             }
 
             override fun updateFilter(text: String) {

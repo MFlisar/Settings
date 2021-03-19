@@ -1,29 +1,31 @@
 package com.michaelflisar.settings.demo.advanced.settings
 
 import com.michaelflisar.settings.utils.interfaces.ICustomSetting
-import com.michaelflisar.settings.utils.interfaces.IGlobalSetting
-import com.michaelflisar.settings.color.ColorSetting
-import com.michaelflisar.settings.color.ColorSetup
 import com.michaelflisar.settings.core.classes.SettingsIcon
 import com.michaelflisar.settings.core.enums.ChangeType
+import com.michaelflisar.settings.core.enums.SupportType
 import com.michaelflisar.settings.core.interfaces.ISettingsData
+import com.michaelflisar.settings.core.items.setups.TextSetup
+import com.michaelflisar.settings.core.settings.StringSetting
 import com.michaelflisar.settings.demo.R
 import com.michaelflisar.settings.demo.advanced.data.db.FolderWithFolders
 import com.michaelflisar.settings.demo.advanced.data.global.GlobalPreference
 import com.michaelflisar.settings.utils.SettingsData
+import com.michaelflisar.settings.utils.interfaces.IGlobalSetting
 import com.michaelflisar.text.asText
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-object SettFolderColor : ColorSetting(
-        2L, // TODO
-        "Folder color".asText(),
+object SettFolderTag : StringSetting(
+        6L, // TODO
+        "Folder tag".asText(),
         null,
         null,
-        SettingsIcon(R.drawable.ic_color_lens_black_24dp),
-        ColorSetup(true)
-), IGlobalSetting<Int, GlobalPreference>, ICustomSetting<Int, FolderWithFolders> {
+        SettingsIcon(R.drawable.ic_label_outline_white_24dp),
+        TextSetup(true)
+), IGlobalSetting<String, GlobalPreference>, ICustomSetting<String, FolderWithFolders> {
 
     override val onValueChanged = { settingsData: ISettingsData, change: ChangeType ->
         // callback... unused in the demo but may be useful in a real world example
@@ -35,10 +37,10 @@ object SettFolderColor : ColorSetting(
     // ------------
 
     override val globalItem: GlobalPreference = GlobalPreference
-    override val globalReadFunc: (GlobalPreference.() -> Int) = { folderColor.value }
-    override val globalWriteFunc: (GlobalPreference.(Int) -> Boolean) = {
+    override val globalReadFunc: (GlobalPreference.() -> String) = { folderTag.value }
+    override val globalWriteFunc: (GlobalPreference.(String) -> Boolean) = {
         runBlocking {
-            folderColor.update(it)
+            folderTag.update(it)
         }
         true
     }
@@ -51,15 +53,15 @@ object SettFolderColor : ColorSetting(
 
     override fun getCustomItem(settingsData: SettingsData.Custom): FolderWithFolders = settingsData.loadItem(FolderWithFolders::class.java)
 
-    override val customReadFunc: (FolderWithFolders.() -> Int) = { folder.customColor }
-    override val customWriteFunc: (FolderWithFolders.(Int) -> Boolean) = {
-        folder.customColor = it
+    override val customReadFunc: (FolderWithFolders.() -> String) = { folder.customTag }
+    override val customWriteFunc: (FolderWithFolders.(String) -> Boolean) = {
+        folder.customTag = it
         true
     }
 
-    override val customReadIsEnabledFunc: (FolderWithFolders.() -> Boolean) = { folder.hasCustomColor }
+    override val customReadIsEnabledFunc: (FolderWithFolders.() -> Boolean) = { folder.hasCustomTag }
     override val customWriteIsEnabledFunc: (FolderWithFolders.(Boolean) -> Boolean) = {
-        folder.hasCustomColor = it
+        folder.hasCustomTag = it
         true
     }
 

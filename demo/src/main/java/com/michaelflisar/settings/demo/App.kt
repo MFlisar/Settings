@@ -1,17 +1,20 @@
 package com.michaelflisar.settings.demo
 
 import android.app.Application
-import com.chibatching.kotpref.Kotpref
 import com.michaelflisar.settings.demo.advanced.DBManager
-import com.michaelflisar.settings.demo.simple.SettingsDefs
+import com.michaelflisar.settings.storage.datastorepreferences.DataStorePrefSettings
 
 class App : Application() {
+
+    companion object {
+        // DataStore forces you to use a singleton!
+        val DEMO_PREFS_MANAGER by lazy { DataStorePrefSettings("demo_data_store") }
+    }
 
     override fun onCreate() {
         super.onCreate()
 
         // necessary for advanced example
-        Kotpref.init(this)
         DBManager.init(this)
 
         // -------------

@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IntDef
-import androidx.cardview.widget.CardView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.doOnTextChanged
@@ -165,6 +164,7 @@ class SettingsView @JvmOverloads constructor(
     // ------------------------
 
     fun bind(viewContext: Settings.ViewContext, state: SettingsState, settings: Settings) {
+        val start = System.currentTimeMillis()
         unbind(true)
         this.viewContext = viewContext
         this.settings = settings
@@ -181,7 +181,7 @@ class SettingsView @JvmOverloads constructor(
         } else {
             settings.bind(viewContext, state, binding.tabs, binding.vp)
         }
-        Log.d("SettingsView", "bind")
+        Log.d("SettingsView", "bind: ${System.currentTimeMillis() - start}")
     }
 
     fun unbind(resetViewContext: Boolean) {
@@ -251,15 +251,15 @@ class SettingsView @JvmOverloads constructor(
         if (searchEnabled) {
 
 //            if (hideSearchOnScroll) {
-                val searchBarBehaviour = fabFilterBehaviour /*(binding.fabFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
-                searchBarBehaviour.setShowHideInSmallList(showHideSearchInSmallList)
-                val searchBarBehaviour2 = cvFilterBehaviour /* (binding.cvFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
-                searchBarBehaviour2.setShowHideInSmallList(showHideSearchInSmallList)
-                searchBarBehaviour.setCallback { begin, hide ->
-                    if (!begin && hide) {
-                        hideSearchBar(true)
-                    }
+            val searchBarBehaviour = fabFilterBehaviour /*(binding.fabFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
+            searchBarBehaviour.setShowHideInSmallList(showHideSearchInSmallList)
+            val searchBarBehaviour2 = cvFilterBehaviour /* (binding.cvFilter.layoutParams as LayoutParams).behavior*/ as AdvancedHideBottomViewOnScrollBehaviour
+            searchBarBehaviour2.setShowHideInSmallList(showHideSearchInSmallList)
+            searchBarBehaviour.setCallback { begin, hide ->
+                if (!begin && hide) {
+                    hideSearchBar(true)
                 }
+            }
 //            }
             binding.fabFilter.post {
                 val transition = MaterialFade().apply {

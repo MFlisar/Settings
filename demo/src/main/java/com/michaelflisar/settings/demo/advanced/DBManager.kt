@@ -15,10 +15,10 @@ object DBManager {
 
     fun init(context: Context) {
         db = Room.databaseBuilder(
-                context.applicationContext,
-                Database::class.java, "database"
+            context.applicationContext,
+            Database::class.java, "database"
         )
-                .build()
+            .build()
 
         CoroutineScope(Dispatchers.IO).launch {
             if (db.desktopDao().getAll().isEmpty()) {
@@ -42,33 +42,37 @@ object DBManager {
         for (i in 0 until desktopsToCreate) {
 
             val desktop = DBDesktopItem(
-                    label = "Desktop ${i + 1}",
-                    customBackgroundColor = Color.RED,
-                    hasCustomBackgroundColor = false
+                label = "Desktop ${i + 1}",
+                customBackgroundColor = Color.RED,
+                hasCustomBackgroundColor = false
             )
             val desktopId = db.desktopDao().insert(desktop).first()
 
             val folders = foldersPerDesktop(i)
             for (i2 in 0 until folders) {
                 val folder = DBFolderItem(
-                        label = "Folder ${i2 + 1}",
-                        customColor = Color.GRAY,
-                        hasCustomColor = false,
-                        fkDesktopId = desktopId,
-                        fkFolderId = null,
-                        imageUri = ""
+                    label = "Folder ${i2 + 1}",
+                    customColor = Color.GRAY,
+                    hasCustomColor = false,
+                    customTag = "",
+                    hasCustomTag = false,
+                    fkDesktopId = desktopId,
+                    fkFolderId = null,
+                    imageUri = ""
                 )
                 val folderId = db.folderDao().insert(folder).first()
 
                 val subFolders = subFolderPerFolder(i, i2)
                 for (i3 in 0 until subFolders) {
                     val subFolder = DBFolderItem(
-                            label = "SubFolder ${i3 + 1}",
-                            customColor = Color.GRAY,
-                            hasCustomColor = false,
-                            fkDesktopId = null,
-                            fkFolderId = folderId,
-                            imageUri = ""
+                        label = "SubFolder ${i3 + 1}",
+                        customColor = Color.GRAY,
+                        hasCustomColor = false,
+                        customTag = "",
+                        hasCustomTag = false,
+                        fkDesktopId = null,
+                        fkFolderId = folderId,
+                        imageUri = ""
                     )
                     db.folderDao().insert(subFolder)
                 }

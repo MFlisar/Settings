@@ -43,6 +43,10 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
     }
+
+    packagingOptions {
+        exclude("META-INF/*.kotlin_module")
+    }
 }
 
 dependencies {
@@ -95,7 +99,8 @@ dependencies {
     // Advanced demo
     // ----------------
 
-    implementation "com.chibatching.kotpref:kotpref:${versions.kotpref}"
+    implementation "com.github.MFlisar.MaterialPreferences:core:${versions.materialPreferences}"
+    implementation "com.github.MFlisar.MaterialPreferences:datastore:${versions.materialPreferences}"
 
     implementation "androidx.room:room-runtime:${androidx.room}"
     kapt "androidx.room:room-compiler:${androidx.room}"

@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.michaelflisar.settings.core.SettingsManager
+import com.michaelflisar.settings.demo.App
 import com.michaelflisar.settings.demo.advanced.AdvancedStorageManager
 import com.michaelflisar.settings.demo.databinding.ActivityMainBinding
 import com.michaelflisar.settings.demo.databinding.ViewMainButtonBinding
@@ -53,11 +54,9 @@ class MainActivity : AppCompatActivity() {
             if (isAdvanced) {
                 SettingsManager.init(activity, AdvancedStorageManager)
             } else {
-                // 1) our StorageManager is the DataStorePrefsSetting - so we create one here...
-                val storageManager = DataStorePrefSettings(activity, "demo_data_store")
-                // 2) ... and then we initialise the SettingsManager with the StorageManager it should use
-                SettingsManager.init(activity, storageManager)
-                // 3) init or update some data
+                // 1)  we initialise the SettingsManager with the StorageManager it should use
+                SettingsManager.init(activity, App.DEMO_PREFS_MANAGER)
+                // 2) init or update some data
                 SettingsDefs.onAppStart()
             }
 

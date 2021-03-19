@@ -12,6 +12,8 @@ import com.michaelflisar.settings.demo.advanced.data.db.DesktopWithFolders
 import com.michaelflisar.settings.demo.advanced.data.global.GlobalPreference
 import com.michaelflisar.settings.utils.SettingsData
 import com.michaelflisar.text.asText
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -34,9 +36,11 @@ object SettDesktopColor : ColorSetting(
     // ------------
 
     override val globalItem: GlobalPreference = GlobalPreference
-    override val globalReadFunc: (GlobalPreference.() -> Int) = { desktopBackgroundColor }
+    override val globalReadFunc: (GlobalPreference.() -> Int) = { desktopBackgroundColor.value }
     override val globalWriteFunc: (GlobalPreference.(Int) -> Boolean) = {
-        desktopBackgroundColor = it
+        runBlocking {
+            desktopBackgroundColor.update(it)
+        }
         true
     }
 

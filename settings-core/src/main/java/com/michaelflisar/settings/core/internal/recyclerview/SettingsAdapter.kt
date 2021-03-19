@@ -1,8 +1,10 @@
 package com.michaelflisar.settings.core.internal.recyclerview
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.michaelflisar.settings.core.SettingsManager
 import com.michaelflisar.settings.core.animateVisibility
 import com.michaelflisar.settings.core.classes.DialogContext
 import com.michaelflisar.settings.core.classes.SettingsDependency
@@ -122,14 +124,21 @@ internal class SettingsAdapter(
     }
 
     fun bind(recyclerView: RecyclerView, emptyView: View?) {
+        val start = Test.measureTimeStart()
         recyclerView.adapter = fastAdapter
         this.emptyView = emptyView
         this.recyclerView = recyclerView
         checkIsEmpty(true)
+        Test.measureTimeStop(start, "SettingsAdapter::bind")
     }
 
     fun updateFilter(filter: String) {
         onFilterChanged(filter)
+    }
+
+    fun onDestroy() {
+        itemAdapter.clear()
+        fastAdapter.notifyAdapterDataSetChanged()
     }
 
     private fun checkIsEmpty(force: Boolean = false) {

@@ -87,7 +87,10 @@ object SettingsManager {
     // notifier functions
     // -----------------
 
-    fun notifyOnSettingsChangedCallbacks(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?) {
+    fun notifyOnSettingsChangedCallbacks(changeType: ChangeType, setting: ISetting<*>, settingsData: ISettingsData, oldValue: Any?, newValue: Any?, callSettingsOnValueChanged: Boolean) {
+        if (callSettingsOnValueChanged) {
+            setting.onValueChanged?.invoke(settingsData, changeType)
+        }
         callbacks.forEach {
             it.onSettingChanged(changeType, setting, settingsData, oldValue, newValue)
         }

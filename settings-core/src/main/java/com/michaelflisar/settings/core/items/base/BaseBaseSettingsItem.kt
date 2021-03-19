@@ -72,6 +72,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
     final override fun createBinding(inflater: LayoutInflater, parent: ViewGroup?): SettingsItemBaseBinding {
 
+        val start = Test.measureTimeStart()
+
         // BaseBinding
         val baseBinding = SettingsItemBaseBinding.inflate(inflater, parent, false)
         baseBinding.cardView.setUsesDarkTheme(setup.useDarkTheme)
@@ -96,6 +98,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
         onCreateBindingFinished(baseBinding)
 
+        Test.measureTimeStop(start, "BaseBaseSettingsItem.createBinding")
+
         return baseBinding
     }
 
@@ -105,6 +109,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
     final override fun bindView(binding: SettingsItemBaseBinding, payloads: List<Any>) {
 
+        val start = Test.measureTimeStart()
         val containsUnknownPayload = payloads.count { it !is SettingsPayload } > 0
 
         if (payloads.isEmpty() || payloads.contains(SettingsPayload.DependencyChanged)) {
@@ -113,8 +118,9 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
                 viewIsEnabled = viewIsEnabled && it.isChildEnabled(settingsData)
             }
             binding.cardView.setViewState(viewIsEnabled)
-            if (!containsUnknownPayload && payloads.size == 1)
+            if (!containsUnknownPayload && payloads.size == 1) {
                 return
+            }
         }
         val onlyValueChanged = !containsUnknownPayload && (payloads.contains(SettingsPayload.IsCustomEnabledChanged) || payloads.contains(SettingsPayload.ValueChanged))
 
@@ -188,8 +194,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             } else {
                 updateBottomViewsVisibility(binding, subBindingBottom, View.GONE)
             }
-            onBindViewsFinished(binding, subBindingTop, subBindingBottom, payloads)
         }
+        onBindViewsFinished(binding, subBindingTop, subBindingBottom, payloads)
 
         // -----------
         // 4 - Sub Bindings
@@ -206,6 +212,8 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
         //binding.tvBottomTitle.isEnabled = globalValueInBottomViewIsEditable
 //        subBindingBottom?.root?.let { enableViewsRecursively(it, globalValueInBottomViewIsEditable) }
+
+        Test.measureTimeStop(start, "BaseBaseSettingsItem.bindView")
     }
 
     override fun unbindView(binding: SettingsItemBaseBinding) {
@@ -233,7 +241,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         if (CardGroupDecorator.APPLY_CARD_STYLE_IN_DECORATOR) {
             return
         }
-        CardGroupDecorator.applyStyle(setup.style.topLevelStyle, setup.style.subLevelStyle, setup.style.elevationInDp, baseBinding.cardView, baseBinding.constraintLayout, isTopLevel)
+        CardGroupDecorator.applyStyle(setup.style.topLevelStyle, setup.style.subLevelStyle, setup.style.elevationInDp, baseBinding.cardView, baseBinding.llRoot, isTopLevel)
     }
 
     protected fun applyTinting(baseBinding: SettingsItemBaseBinding, style: SettingsStyle.BaseStyle, customForegroundColor: Int? = null, textViews: List<TextView?> = emptyList(), lighteningFactorPerLevel: Float? = null) {
@@ -271,7 +279,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
     private fun replaceView(viewToReplace: View, bindingToReplaceWith: SubViewBinding) {
         val lp = viewToReplace.layoutParams
-        val parent = viewToReplace.parent as ConstraintLayout
+        val parent = viewToReplace.parent as ViewGroup
         parent.removeView(viewToReplace)
         parent.addView(bindingToReplaceWith.root, lp)
     }

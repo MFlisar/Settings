@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.michaelflisar.settings.core.internal.views.SettingsRootView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:minHeight="?listPreferredItemHeightSmall"
+    app:cardCornerRadius="0dp"
+    app:cardUseCompatPadding="false"
+    app:contentPadding="0dp">
+
+    <LinearLayout
+        android:id="@+id/llRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <FrameLayout
+            android:id="@+id/flLeft"
+            android:layout_width="@dimen/settings_left_icon_width"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <View
+                android:id="@+id/vImageBackground"
+                android:layout_width="@dimen/settings_left_icon_width"
+                android:layout_height="@dimen/settings_left_icon_height"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:background="?colorAccent"
+                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+                android:visibility="gone" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/vGroupImageBackground"
+                android:layout_width="48dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center_vertical"
+                android:background="?colorAccent"
+                android:visibility="gone"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp"
+                app:cardUseCompatPadding="false" />
+
+            <!-- Icon -->
+            <ImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="@dimen/settings_left_icon_width"
+                android:layout_height="@dimen/settings_left_icon_height"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingRight="@dimen/settings_left_icon_horizontal_padding" />
+
+            <com.github.zagum.switchicon.SwitchIconView
+                android:id="@+id/sivIcon"
+                android:layout_width="@dimen/settings_left_icon_width"
+                android:layout_height="@dimen/settings_left_icon_height"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+                app:si_disabled_color="?colorControlNormal"
+                app:si_tint_color="?colorAccent" />
+
+            <Switch
+                android:id="@+id/swIcon"
+                android:layout_width="@dimen/settings_left_icon_width"
+                android:layout_height="@dimen/settings_left_icon_height"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:switchMinWidth="@dimen/settings_left_icon_width" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/llCenter"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llCenterTop"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <!-- Title -->
+                        <TextView
+                            android:id="@+id/tvTitle"
+                            style="@style/SettingsTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                            tools:text="Titel" />
+
+                        <!-- SubTitle -->
+                        <TextView
+                            android:id="@+id/tvSubTitle"
+                            style="@style/SettingsSubTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                            tools:text="Sub Titel" />
+
+                    </LinearLayout>
+
+                    <!-- help icon -->
+                    <ImageButton
+                        android:layout_gravity="center_vertical"
+                        android:id="@+id/ivHelp"
+                        android:layout_width="32dp"
+                        android:layout_height="wrap_content"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:cropToPadding="true"
+                        android:padding="4dp"
+                        app:srcCompat="@drawable/ic_baseline_help_outline_24" />
+
+                </LinearLayout>
+
+                <!-- View for State -->
+                <FrameLayout
+                    android:id="@+id/vState"
+                    android:layout_width="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="2" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/vBottomSeparator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                android:alpha="0.5"
+                android:background="?colorOnBackground" />
+
+            <LinearLayout
+                android:id="@+id/llCenterBottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Bottom Title -->
+                <TextView
+                    android:id="@+id/tvBottomTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                    android:layout_marginTop="4dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="3"
+                    tools:text="Bottom Titel" />
+
+                <!-- View for Bottom State -->
+                <FrameLayout
+                    android:id="@+id/vStateBottom"
+                    style="@style/SettingsSubTitle"
+                    android:layout_width="0dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="2" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/flRight"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <!-- Arrow View for Dialogs and Expandable Items -->
+            <!-- translated into the containers margin! -->
+            <ImageView
+                android:id="@+id/ivEndIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:rotation="270"
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
+
+            <!-- Arrow View for Dialogs and Expandable Items -->
+            <!-- translated into the containers margin! -->
+            <ImageView
+                android:id="@+id/ivExpandIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center_vertical"
+                android:translationX="@dimen/settings_left_icon_translation"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</com.michaelflisar.settings.core.internal.views.SettingsRootView>

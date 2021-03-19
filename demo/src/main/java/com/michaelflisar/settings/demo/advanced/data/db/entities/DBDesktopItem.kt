@@ -24,5 +24,5 @@ data class DBDesktopItem(
         }
     }
 
-    fun calcColor() = if (hasCustomBackgroundColor) customBackgroundColor else GlobalPreference.desktopBackgroundColor
+    fun calcColor() = if (hasCustomBackgroundColor) customBackgroundColor else GlobalPreference.desktopBackgroundColor.value
 }

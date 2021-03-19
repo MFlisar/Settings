@@ -21,6 +21,8 @@ data class DBFolderItem(
         // settings data
         @ColumnInfo(name = "custom_color") var customColor: Int,
         @ColumnInfo(name = "has_custom_color") var hasCustomColor: Boolean,
+        @ColumnInfo(name = "custom_tag") var customTag: String,
+        @ColumnInfo(name = "has_custom_tag") var hasCustomTag: Boolean,
 
         @ColumnInfo(name = "image_uri") var imageUri: String
 ) {
@@ -31,5 +33,6 @@ data class DBFolderItem(
         }
     }
 
-    fun calcColor() = if (hasCustomColor) customColor else GlobalPreference.folderColor
+    fun calcColor() = if (hasCustomColor) customColor else GlobalPreference.folderColor.value
+    fun calcTag() = if (hasCustomTag) customTag else GlobalPreference.folderTag.value
 }

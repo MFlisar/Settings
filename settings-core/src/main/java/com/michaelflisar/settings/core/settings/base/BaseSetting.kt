@@ -60,15 +60,13 @@ abstract class BaseSetting<ValueType, S : BaseSetting<ValueType, S, Setup>, Setu
             val oldValue = readGlobal(settingsData as ISettingsData.Global)
             if (oldValue != value) {
                 writeGlobal(settingsData, value)
-                onValueChanged?.invoke(settingsData, ChangeType.GlobalValue)
-                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.GlobalValue, this, settingsData, oldValue, value)
+                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.GlobalValue, this, settingsData, oldValue, value, true)
             }
         } else {
             val oldValue = readCustom(settingsData as ISettingsData.Element)
             if (oldValue != value) {
                 writeCustom(settingsData, value)
-                onValueChanged?.invoke(settingsData, ChangeType.CustomValue)
-                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomValue, this, settingsData, oldValue, value)
+                SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomValue, this, settingsData, oldValue, value, true)
             }
         }
     }
@@ -81,8 +79,7 @@ abstract class BaseSetting<ValueType, S : BaseSetting<ValueType, S, Setup>, Setu
         val oldValue = readIsCustomEnabled(settingsData)
         if (oldValue != isEnabled) {
             writeIsCustomEnabled(settingsData, isEnabled)
-            onValueChanged?.invoke(settingsData, ChangeType.CustomIsEnabled)
-            SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomIsEnabled, this, settingsData, oldValue, isEnabled)
+            SettingsManager.notifyOnSettingsChangedCallbacks(ChangeType.CustomIsEnabled, this, settingsData, oldValue, isEnabled, true)
         }
     }
 

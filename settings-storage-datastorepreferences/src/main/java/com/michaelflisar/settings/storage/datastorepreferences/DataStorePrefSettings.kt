@@ -2,9 +2,9 @@ package com.michaelflisar.settings.storage.datastorepreferences
 
 import android.content.Context
 import android.graphics.Color
-import android.os.Parcelable
-import androidx.datastore.DataStore
-import androidx.datastore.preferences.*
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
 import com.michaelflisar.settings.color.ColorSetting
 import com.michaelflisar.settings.color.SettingsColorModule
 import com.michaelflisar.settings.core.SettingsCoreModule
@@ -17,42 +17,45 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 open class DataStorePrefSettings(
-        context: Context,
-        storeName: String
+    storeName: String
 ) : ISettingsStorageManager {
 
-    private val dataStore: DataStore<Preferences> = context.createDataStore(storeName)
+    companion object {
+        internal lateinit var context: Context
+    }
+
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(storeName)
 
     // ------------------
     // ISettingsStorageManager
     // ------------------
 
     override val supportedModules = listOf(
-            SettingsCoreModule,
-            SettingsColorModule
+        SettingsCoreModule,
+        SettingsColorModule
     )
 
     private fun <T> readValue(key: String, setting: ISetting<*>): T {
         castIntSetting(setting)?.let {
-            return read(key, 0) as T
+            return read(intPreferencesKey(key), 0) as T
         }
         castBooleanSetting(setting)?.let {
-            return read(key, false) as T
+            return read(booleanPreferencesKey(key), false) as T
         }
         castStringSetting(setting)?.let {
-            return read(key, "") as T
+            return read(stringPreferencesKey(key), "") as T
         }
         castListSetting(setting)?.let {
-            val id = read(key, 0L)
+            val id = read(longPreferencesKey(key), 0L)
             return (it.setup.getItemById(id) ?: it.setup.items.first()) as T
         }
         castMultiListSetting(setting)?.let {
-            val ids = readSet(key, emptySet())
+            val ids = readSet(stringSetPreferencesKey(key), emptySet())
             val data: List<ISettingsListItem> = ids.map { id -> it.setup.getItemById(id.toLong()) }
             return MultiListSetting.MultiListData(data) as T
         }
         castColorSetting(setting)?.let {
-            return read(key, Color.BLACK) as T
+            return read(intPreferencesKey(key), Color.BLACK) as T
         }
         throw RuntimeException("Unsupported setting received!")
     }
@@ -69,55 +72,71 @@ open class DataStorePrefSettings(
         return readValue(key, setting)
     }
 
-    override fun readCustomEnabled(setting: ISetting<*>, settingsData: ISettingsData.Element): Boolean {
+    override fun readCustomEnabled(
+        setting: ISetting<*>,
+        settingsData: ISettingsData.Element
+    ): Boolean {
         val key = getCustomIsEnabledKey(setting, settingsData as IPrefSubIDProvider)
-        return read(key, false)
+        return read(booleanPreferencesKey(key), false)
     }
 
     private fun <T> writeValue(key: String, setting: ISetting<*>, value: T) {
         castIntSetting(setting)?.let {
-            write(key, value as Int)
+            write(intPreferencesKey(key), value as Int)
             return
         }
         castBooleanSetting(setting)?.let {
-            write(key, value as Boolean)
+            write(booleanPreferencesKey(key), value as Boolean)
             return
         }
         castStringSetting(setting)?.let {
-            write(key, value as String)
+            write(stringPreferencesKey(key), value as String)
             return
         }
         castListSetting(setting)?.let {
-            write(key, (value as ISettingsListItem).id)
+            write(longPreferencesKey(key), (value as ISettingsListItem).id)
             return
         }
         castMultiListSetting(setting)?.let {
-            val ids = (value as MultiListSetting.MultiListData).items.map { it.id.toString() }.toSet()
-            writeSet(key, ids)
+            val ids =
+                (value as MultiListSetting.MultiListData).items.map { it.id.toString() }.toSet()
+            write(stringSetPreferencesKey(key), ids)
             return
         }
         castColorSetting(setting)?.let {
-            write(key, value as Int)
+            write(intPreferencesKey(key), value as Int)
             return
         }
         throw RuntimeException("Unsupported setting received!")
     }
 
-    override fun <T> writeGlobal(setting: ISetting<*>, value: T, settingsData: ISettingsData.Global): Boolean {
+    override fun <T> writeGlobal(
+        setting: ISetting<*>,
+        value: T,
+        settingsData: ISettingsData.Global
+    ): Boolean {
         val key = getGlobalKey(setting)
         writeValue(key, setting, value)
         return true
     }
 
-    override fun <T> writeCustom(setting: ISetting<*>, value: T, settingsData: ISettingsData.Element): Boolean {
+    override fun <T> writeCustom(
+        setting: ISetting<*>,
+        value: T,
+        settingsData: ISettingsData.Element
+    ): Boolean {
         val key = getCustomKey(setting, settingsData as IPrefSubIDProvider)
         writeValue(key, setting, value)
         return true
     }
 
-    override fun writeCustomEnabled(setting: ISetting<*>, value: Boolean, settingsData: ISettingsData.Element): Boolean {
+    override fun writeCustomEnabled(
+        setting: ISetting<*>,
+        value: Boolean,
+        settingsData: ISettingsData.Element
+    ): Boolean {
         val key = getCustomIsEnabledKey(setting, settingsData as IPrefSubIDProvider)
-        write(key, value)
+        write(booleanPreferencesKey(key), value)
         return true
     }
 
@@ -125,36 +144,23 @@ open class DataStorePrefSettings(
     // DataStorage functions
     // ------------------
 
-    private inline fun <reified T : Any> read(key: String, defaultValue: T): T {
-        val k = preferencesKey<T>(key)
+    private inline fun <reified T : Any> read(key: Preferences.Key<T>, defaultValue: T): T {
+        return runBlocking {
+            context.dataStore.data.first<Preferences>()[key] ?: defaultValue
+        }
+    }
+
+    private inline fun <reified T : Any> readSet(key: Preferences.Key<Set<T>>, defaultValue: Set<T>): Set<T> {
         val value = runBlocking {
-            dataStore.data.first()[k] ?: defaultValue
+            context.dataStore.data.first()[key] ?: defaultValue
         }
         return value
     }
 
-    private fun readSet(key: String, defaultValue: Set<String>): Set<String> {
-        val k = preferencesSetKey<String>(key)
-        val value = runBlocking {
-            dataStore.data.first()[k] ?: defaultValue
-        }
-        return value
-    }
-
-    private inline fun <reified T : Any> write(key: String, value: T) {
-        val k = preferencesKey<T>(key)
+    private inline fun <reified T : Any> write(key: Preferences.Key<T>, value: T) {
         runBlocking {
-            dataStore.edit {
-                it[k] = value
-            }
-        }
-    }
-
-    private fun writeSet(key: String, value: Set<String>) {
-        val k = preferencesSetKey<String>(key)
-        runBlocking {
-            dataStore.edit {
-                it[k] = value
+            context.dataStore.edit {
+                it[key] = value
             }
         }
     }
@@ -171,6 +177,9 @@ open class DataStorePrefSettings(
     private fun castColorSetting(setting: ISetting<*>) = setting as? ColorSetting
 
     private fun getGlobalKey(setting: ISetting<*>): String = setting.id.toString()
-    private fun getCustomKey(setting: ISetting<*>, item: IPrefSubIDProvider) = "${setting.id}|${item.id}"
-    private fun getCustomIsEnabledKey(setting: ISetting<*>, item: IPrefSubIDProvider) = "E|${setting.id}|${item.id}"
+    private fun getCustomKey(setting: ISetting<*>, item: IPrefSubIDProvider) =
+        "${setting.id}|${item.id}"
+
+    private fun getCustomIsEnabledKey(setting: ISetting<*>, item: IPrefSubIDProvider) =
+        "E|${setting.id}|${item.id}"
 }

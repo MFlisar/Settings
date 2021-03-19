@@ -1,14 +1,11 @@
 package com.michaelflisar.settings.demo.advanced.data.global
 
 import android.graphics.Color
-import com.chibatching.kotpref.KotprefModel
+import com.michaelflisar.materialpreferences.core.SettingsModel
+import com.michaelflisar.materialpreferences.datastore.DataStoreStorage
 
-object GlobalPreference : KotprefModel() {
-
-    // KotPref Setup
-    override val commitAllPropertiesByDefault = true
-
-    // Preferences
-    var folderColor by intPref(Color.BLACK)
-    var desktopBackgroundColor by intPref(Color.WHITE)
+object GlobalPreference : SettingsModel(DataStoreStorage("global")) {
+    val folderColor by intPref(Color.BLACK)
+    val folderTag by stringPref("DEFAULT")
+    val desktopBackgroundColor by intPref(Color.WHITE)
 }
