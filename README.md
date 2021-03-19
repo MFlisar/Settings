@@ -2,6 +2,15 @@
 
 A full recycler view based and NO XML preferences replacement with a lot of extra features. With the target that it supports settings and per item settings.
 
+![Demo 1](screenshots/demo_1.jpg)
+![Demo 1](screenshots/demo_2.jpg)
+![Demo 1](screenshots/demo_3.jpg)
+![Demo 1](screenshots/demo_4.jpg)
+![Demo 1](screenshots/demo_5.jpg)
+![Demo 1](screenshots/demo_6.jpg)
+![Demo 1](screenshots/demo_7.jpg)
+![Demo 1](screenshots/demo_8.jpg)
+
 ### Features
 
 * no xml preferences
