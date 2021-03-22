@@ -24,7 +24,6 @@ class SimpleDemo1Activity : AppCompatActivity() {
     val setup by lazy {
         SettingsDisplaySetup(
                 showID = false,
-                useDarkTheme = false, /* this activity does not use this setting but is light instead */ // SettingsDefs.appSettingDarkTheme.readGlobal(),
                 defaultSettingsLabel = R.string.custom_default_setting_label,
                 showNumbersForGroups = true,
                 showNumbersForItems = true,

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.github.zawadz88.materialpopupmenu.popupMenu
+import com.michaelflisar.dialogs.DialogSetup
 import com.michaelflisar.dialogs.enums.IconSize
 import com.michaelflisar.dialogs.events.DialogListEvent
 import com.michaelflisar.dialogs.setups.DialogList
@@ -104,7 +105,7 @@ class SettingsItemList(
                         // so we do not need to use the dialog event but forward the event directly from the popup callback
                         val popup = popupMenu {
                             dropdownGravity = Gravity.END or Gravity.TOP
-                            style = if (settingsItem.setup.useDarkTheme) R.style.Widget_MPM_Menu_Dark else R.style.Widget_MPM_Menu
+                            style = if (DialogSetup.isUsingDarkTheme(view.context)) R.style.Widget_MPM_Menu_Dark else R.style.Widget_MPM_Menu
                             section {
                                 title = if (item.setup.showTitleInPopup) item.label.get(dialogContext.context) else null
                                 for (entry in item.setup.items) {

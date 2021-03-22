@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.github.zagum.switchicon.SwitchIconView
+import com.michaelflisar.dialogs.DialogSetup
 import com.michaelflisar.settings.core.*
 import com.michaelflisar.settings.core.R
 import com.michaelflisar.settings.core.classes.SettingsDisplaySetup
@@ -76,7 +77,7 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
 
         // BaseBinding
         val baseBinding = SettingsItemBaseBinding.inflate(inflater, parent, false)
-        baseBinding.cardView.setUsesDarkTheme(setup.useDarkTheme)
+        baseBinding.cardView.setUsesDarkTheme(DialogSetup.isUsingDarkTheme(inflater.context))
 
         // Top Binding
         val subBindingTop = createSubBinding(inflater, parent, true)

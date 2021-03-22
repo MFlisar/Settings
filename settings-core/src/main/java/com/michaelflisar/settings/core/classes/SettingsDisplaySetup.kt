@@ -42,7 +42,6 @@ data class SettingsDisplaySetup(
 
         // UI
         val customLayout: CustomLayoutStyle = CustomLayoutStyle.LargeInfo,
-        val useDarkTheme: Boolean = false,
         val highlightBackgroundColor: Int = Color.YELLOW,
         val highlightForegroundColor: Int = Color.BLACK,
         val noDataFoundIcon: Int? = null,

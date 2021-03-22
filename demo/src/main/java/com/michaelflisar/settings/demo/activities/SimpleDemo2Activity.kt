@@ -138,7 +138,6 @@ class SimpleDemo2Activity : AppCompatActivity() {
         // 1) create an instance of DisplaySetup to define how the settings should look like
         val setup = SettingsDisplaySetup(
                 showID = false,
-                useDarkTheme = SettingsDefs.appSettingDarkTheme.read(SettingsDefs.GLOBAL),
                 defaultSettingsLabel = R.string.custom_default_setting_label,
                 showNumbersForGroups = true,
                 showNumbersForItems = true,

@@ -53,7 +53,6 @@ class SettingsItemColor(
                 DialogColor(
                         item.id.toInt(),
                         item.label,
-                        darkTheme = settingsItem.setup.useDarkTheme,
                         color = value,
                         showAlpha = item.setup.supportAlpha,
                         extra = extra
