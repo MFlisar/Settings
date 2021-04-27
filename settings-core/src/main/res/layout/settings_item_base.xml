@@ -5,8 +5,8 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:minHeight="?listPreferredItemHeightSmall"
     app:cardCornerRadius="0dp"
     app:cardUseCompatPadding="false"
@@ -44,9 +44,9 @@
         <!--        android:layout_width="0dp"-->
         <!--        android:layout_height="0dp"-->
         <!--        android:background="#ff0000"-->
-        <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+        <!--        app:layout_constraintStart_toStartOf="parent"-->
         <!--        app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--        app:layout_constraintRight_toLeftOf="@id/guidelineInset"-->
+        <!--        app:layout_constraintEnd_toStartOf="@id/guidelineInset"-->
         <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
         <!-- ********** -->
@@ -60,8 +60,8 @@
 <!--            android:background="?colorPrimary"-->
 <!--            android:visibility="gone"-->
 <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
 <!--            app:layout_constraintTop_toTopOf="parent" />-->
 
         <View
@@ -71,11 +71,11 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
             android:background="?colorAccent"
-            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingEnd="@dimen/settings_left_icon_horizontal_padding"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/vBottomSeparator"
-            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintStart_toEndOf="@id/guidelineInset"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
@@ -88,7 +88,7 @@
             app:cardElevation="0dp"
             app:cardUseCompatPadding="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- ********** -->
@@ -102,10 +102,10 @@
             android:layout_height="@dimen/settings_left_icon_height"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
-            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingEnd="@dimen/settings_left_icon_horizontal_padding"
             app:layout_constraintBottom_toTopOf="@id/vBottomSeparator"
-            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintStart_toEndOf="@id/guidelineInset"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.github.zagum.switchicon.SwitchIconView
@@ -114,10 +114,10 @@
             android:layout_height="@dimen/settings_left_icon_height"
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp"
-            android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-            android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+            android:paddingEnd="@dimen/settings_left_icon_horizontal_padding"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintStart_toEndOf="@id/guidelineInset"
             app:layout_constraintTop_toTopOf="parent"
             app:si_disabled_color="?colorControlNormal"
             app:si_tint_color="?colorAccent" />
@@ -130,7 +130,7 @@
             android:layout_marginBottom="4dp"
             android:switchMinWidth="@dimen/settings_left_icon_width"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/guidelineInset"
+            app:layout_constraintStart_toEndOf="@id/guidelineInset"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Arrow View for Dialogs and Expandable Items -->
@@ -141,7 +141,7 @@
             android:layout_height="24dp"
             android:rotation="270"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
 
@@ -154,7 +154,7 @@
             android:translationX="@dimen/settings_left_icon_translation"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_keyboard_arrow_down_24dp" />
 
@@ -167,7 +167,7 @@
             android:cropToPadding="true"
             android:padding="4dp"
             app:layout_constraintBottom_toTopOf="@id/barrierBottom"
-            app:layout_constraintRight_toLeftOf="@id/guideline23"
+            app:layout_constraintEnd_toStartOf="@id/guideline23"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_baseline_help_outline_24" />
 
@@ -181,10 +181,10 @@
             style="@style/SettingsTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:layout_marginStart="@dimen/settings_icon_margin_right"
             app:layout_constraintBottom_toTopOf="@id/tvSubTitle"
-            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
-            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintStart_toEndOf="@+id/ivIcon"
+            app:layout_constraintEnd_toStartOf="@+id/ivHelp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
             tools:text="Titel" />
@@ -195,10 +195,10 @@
             style="@style/SettingsSubTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:layout_marginStart="@dimen/settings_icon_margin_right"
             app:layout_constraintBottom_toTopOf="@id/barrierBottom"
-            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
-            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintStart_toEndOf="@+id/ivIcon"
+            app:layout_constraintEnd_toStartOf="@+id/ivHelp"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle"
             app:layout_constraintVertical_chainStyle="packed"
             tools:text="Sub Titel" />
@@ -208,10 +208,10 @@
             android:id="@+id/vState"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toTopOf="@id/barrierBottom"
-            app:layout_constraintLeft_toRightOf="@id/ivHelp"
-            app:layout_constraintRight_toLeftOf="@id/ivEndIcon"
+            app:layout_constraintStart_toEndOf="@id/ivHelp"
+            app:layout_constraintEnd_toStartOf="@id/ivEndIcon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- ******************** -->
@@ -233,11 +233,11 @@
             android:id="@+id/vBottomSeparator"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:layout_marginStart="@dimen/settings_icon_margin_right"
             android:alpha="0.5"
             android:background="?colorOnBackground"
-            app:layout_constraintLeft_toRightOf="@id/ivIcon"
-            app:layout_constraintRight_toLeftOf="@+id/ivEndIcon"
+            app:layout_constraintStart_toEndOf="@id/ivIcon"
+            app:layout_constraintEnd_toStartOf="@+id/ivEndIcon"
             app:layout_constraintTop_toBottomOf="@+id/barrierBottom" />
 
         <!-- Bottom Title -->
@@ -245,11 +245,11 @@
             android:id="@+id/tvBottomTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+            android:layout_marginStart="@dimen/settings_icon_margin_right"
             android:layout_marginTop="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/ivIcon"
-            app:layout_constraintRight_toLeftOf="@+id/ivHelp"
+            app:layout_constraintStart_toEndOf="@+id/ivIcon"
+            app:layout_constraintEnd_toStartOf="@+id/ivHelp"
             app:layout_constraintTop_toBottomOf="@id/vBottomSeparator"
             tools:text="Bottom Titel" />
 
@@ -260,10 +260,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/ivHelp"
-            app:layout_constraintRight_toLeftOf="@id/ivEndIcon"
+            app:layout_constraintStart_toEndOf="@id/ivHelp"
+            app:layout_constraintEnd_toStartOf="@id/ivEndIcon"
             app:layout_constraintTop_toBottomOf="@id/vBottomSeparator" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

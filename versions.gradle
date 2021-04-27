@@ -8,21 +8,22 @@ ext {
     ]
 
     androidx = [
-            supportv4       : "1.0.0",
-            fragment        : "1.0.0",
-            appcompat       : "1.2.0",
-            recyclerview    : "1.1.0",
-            cardview        : "1.0.0",
-            viewpager       : "1.0.0",
-            material        : "1.3.0",
-            constraintLayout: "2.0.4",
-            palette         : "1.0.0",
-            preference      : "1.0.0",
-            core            : "1.3.2",
-            lifecycle       : "2.3.0",
-            datastorePrefs  : "1.0.0-alpha08",
-            room            : "2.2.6",
-            startup         : "1.0.0"
+            supportv4         : "1.0.0",
+            fragment          : "1.0.0",
+            appcompat         : "1.2.0",
+            recyclerview      : "1.1.0",
+            cardview          : "1.0.0",
+            viewpager         : "1.0.0",
+            material          : "1.3.0",
+            constraintLayout  : "2.0.4",
+            palette           : "1.0.0",
+            preference        : "1.0.0",
+            core              : "1.3.2",
+            lifecycle         : "2.3.0",
+            datastorePrefs    : "1.0.0-alpha08",
+            room              : "2.2.6",
+            startup           : "1.0.0",
+            swipeRefreshLayout: "1.1.0"
     ]
 
     versions = [

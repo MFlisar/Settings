@@ -10,6 +10,6 @@
         android:layout_height="wrap_content"
         android:minWidth="0dp"
         android:minHeight="0dp"
-        android:layout_gravity="center_vertical|right" />
+        android:layout_gravity="center_vertical|end" />
 
 </FrameLayout>

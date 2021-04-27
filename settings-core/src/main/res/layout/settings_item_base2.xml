@@ -5,8 +5,8 @@
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
     android:minHeight="?listPreferredItemHeightSmall"
     app:cardCornerRadius="0dp"
     app:cardUseCompatPadding="false"
@@ -20,7 +20,7 @@
         android:padding="8dp">
 
         <FrameLayout
-            android:id="@+id/flLeft"
+            android:id="@+id/flStart"
             android:layout_width="@dimen/settings_left_icon_width"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical">
@@ -33,8 +33,8 @@
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"
                 android:background="?colorAccent"
-                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-                android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingEnd="@dimen/settings_left_icon_horizontal_padding"
                 android:visibility="gone" />
 
             <com.google.android.material.card.MaterialCardView
@@ -56,8 +56,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-                android:paddingRight="@dimen/settings_left_icon_horizontal_padding" />
+                android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingEnd="@dimen/settings_left_icon_horizontal_padding" />
 
             <com.github.zagum.switchicon.SwitchIconView
                 android:id="@+id/sivIcon"
@@ -66,8 +66,8 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"
-                android:paddingLeft="@dimen/settings_left_icon_horizontal_padding"
-                android:paddingRight="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingStart="@dimen/settings_left_icon_horizontal_padding"
+                android:paddingEnd="@dimen/settings_left_icon_horizontal_padding"
                 app:si_disabled_color="?colorControlNormal"
                 app:si_tint_color="?colorAccent" />
 
@@ -117,7 +117,7 @@
                             style="@style/SettingsTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                            android:layout_marginStart="@dimen/settings_icon_margin_right"
                             tools:text="Titel" />
 
                         <!-- SubTitle -->
@@ -126,7 +126,7 @@
                             style="@style/SettingsSubTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                            android:layout_marginStart="@dimen/settings_icon_margin_right"
                             tools:text="Sub Titel" />
 
                     </LinearLayout>
@@ -150,7 +150,7 @@
                     android:layout_width="0dp"
                     android:layout_gravity="center_vertical"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="2" />
 
             </LinearLayout>
@@ -159,7 +159,7 @@
                 android:id="@+id/vBottomSeparator"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                android:layout_marginStart="@dimen/settings_icon_margin_right"
                 android:alpha="0.5"
                 android:background="?colorOnBackground" />
 
@@ -175,7 +175,7 @@
                     android:id="@+id/tvBottomTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/settings_icon_margin_right"
+                    android:layout_marginStart="@dimen/settings_icon_margin_right"
                     android:layout_marginTop="4dp"
                     android:layout_gravity="center_vertical"
                     android:layout_weight="3"
@@ -189,7 +189,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="2" />
 
             </LinearLayout>
@@ -197,7 +197,7 @@
         </LinearLayout>
 
         <FrameLayout
-            android:id="@+id/flRight"
+            android:id="@+id/flEnd"
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
 

@@ -146,9 +146,9 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
             // 1.2 - update base binding views
             binding.ivIcon.layoutParams.width = startIconWidth
             binding.sivIcon.layoutParams.width = startIconWidth
-            setMarginLeft(binding.tvTitle, paddingForViewsRightOfIcon)
-            setMarginLeft(binding.tvSubTitle, paddingForViewsRightOfIcon)
-            setMarginLeft(binding.tvBottomTitle, paddingForViewsRightOfIcon)
+            setMarginStart(binding.tvTitle, paddingForViewsRightOfIcon)
+            setMarginStart(binding.tvSubTitle, paddingForViewsRightOfIcon)
+            setMarginStart(binding.tvBottomTitle, paddingForViewsRightOfIcon)
             loadIcon(binding)
             loadSwitchIcon(binding)
             binding.tvTitle.text = setup.filter.highlight(true, text, filter, setup)
@@ -292,9 +292,9 @@ abstract class BaseBaseSettingsItem<ValueType, SubViewBinding : ViewBinding, Set
         barrierBottom.invalidate()
     }
 
-    private fun setMarginLeft(view: View, px: Int) {
+    private fun setMarginStart(view: View, px: Int) {
         val lp = view.layoutParams as ViewGroup.MarginLayoutParams
-        lp.leftMargin = px
+        lp.marginStart = px
 //        view.layoutParams = lp
         view.requestLayout()
     }
